@@ -39,27 +39,30 @@ import org.w3c.dom.Element;
  */
 public class MakeXML extends Application {
     
-    RamenOrderApp app;
+    TicketCalculator app;
     String nodeType;
     
     public void start(Stage primaryStage) {
-        app = new RamenOrderApp();
+        app = new TicketCalculator();
         app.start(primaryStage);
         Scene scene = primaryStage.getScene();      // Scene
-        Parent root = scene.getRoot();
-        
+        Parent root = scene.getRoot();       
         nodeType = root.getClass().getSimpleName();      // VBox
         ObservableList<Node> ol = null;
+        ArrayList<String> subcom = new ArrayList<>();
         if(nodeType.endsWith("VBox")) {
             VBox pane = (VBox) root;
+            subcom.add(pane.getAlignment().toString());
             ol = pane.getChildren();
         }
         else if(nodeType.endsWith("HBox")) {
             HBox pane = (HBox) root;
+            subcom.add(pane.getAlignment().toString());
             ol = pane.getChildren();
         }
         else if(nodeType.endsWith("BorderPane")) {
             BorderPane pane = (BorderPane) root;
+            subcom.add("");
             ol = pane.getChildren();
         }
         else if(nodeType.endsWith("GridPane")) {
@@ -71,6 +74,7 @@ public class MakeXML extends Application {
         //data(nodeType, 1);
         int i;
         ArrayList<String> com = new ArrayList<>();
+        
 
         //Map<String, String> prefs = new HashMap<>();
         for(i=0; i<ol.size(); i++) {
@@ -78,29 +82,44 @@ public class MakeXML extends Application {
             //data(com, 2);
             if(ol.get(i).getClass().getSimpleName().endsWith("HBox")) {
                 HBox pane2 = (HBox) ol.get(i);
+                subcom.add(pane2.getAlignment().toString());
                 ObservableList<Node> ol2 = pane2.getChildren();
                 int j;
                 for(j=0; j<ol2.size(); j++){
                     com.add(ol2.get(j).getClass().getSimpleName());
-                    String[] namae = ol2.get(j).toString().split("'");
+                    String[] st2 = ol2.get(j).toString().split("'");
+                    if(st2.length == 2)
+                        subcom.add(st2[1]);
+                    else
+                        subcom.add("");
                     if(ol2.get(j).getClass().getSimpleName().endsWith("FlowPane")) {
                         FlowPane pane3 = (FlowPane) ol2.get(j);
                         ObservableList<Node> ol3 = pane3.getChildren();
                         int k;
                         for(k=0; k<ol3.size(); k++) {
                             com.add(ol3.get(k).getClass().getSimpleName());
+                            String[] st3 = ol3.get(k).toString().split("'");
+                            if(st3.length == 2)
+                                subcom.add(st3[1]);
+                            else
+                                subcom.add("");
                         }
                     }
                 }
             }
-            
-            
+            else {
+                String[] st = ol.get(i).toString().split("'");
+                if(st.length == 2)
+                    subcom.add(st[1]);
+                else
+                    subcom.add("");
+            }
         }
         //System.out.println(com);
-        data(nodeType, com);
+        data(nodeType,com,subcom);
     }
     
-        public static void data(String a, ArrayList<String> s) {
+        public static void data(String a, ArrayList<String> s, ArrayList<String> ss) {
         // Documentインスタンスの生成
         DocumentBuilder documentBuilder = null;
         try {
@@ -115,10 +134,13 @@ public class MakeXML extends Application {
         //scene.setAttribute("score", "2");
         document.appendChild(scene);
         Element VBox = document.createElement(a);
-        //VBox.setAttribute("score", "2");
+        VBox.appendChild(document.createTextNode(ss.get(0)));       //Pos配置
+        VBox.setAttribute("score", "2");
         //VBox.appendChild(document.createTextNode(s.get(0)));
         for (int i=0;  i<s.size(); i++) {
             Element Comp = document.createElement(s.get(i));
+            if(!ss.get(i+1).isEmpty())      //空判定
+                Comp.appendChild(document.createTextNode(ss.get(i+1)));         //テキスト追加
             System.out.println(s.get(i));
             //System.out.println(Comp);
             if(s.get(i).endsWith("HBox")) {
@@ -127,6 +149,8 @@ public class MakeXML extends Application {
                     if(s.get(j).endsWith("HBox")) 
                         break;
                     Element Comp2 = document.createElement(s.get(j));
+                    if(!ss.get(j+1).isEmpty())      //空判定
+                        Comp2.appendChild(document.createTextNode(ss.get(j+1)));         //テキスト追加
                     //System.out.println(Comp2);
                     Comp.appendChild(Comp2);
                     System.out.println(s.get(j));
@@ -136,6 +160,8 @@ public class MakeXML extends Application {
                             if(s.get(k).endsWith("HBox")) 
                                 break;
                             Element Comp3 = document.createElement(s.get(k));
+                            if(!ss.get(k+1).isEmpty())      //空判定
+                                Comp3.appendChild(document.createTextNode(ss.get(k+1)));         //テキスト追加
                             Comp2.appendChild(Comp3);
                             System.out.println(s.get(k));
                         }
@@ -181,6 +207,9 @@ public class MakeXML extends Application {
         return true;
     }
     
+    public static void aaa() {
+        
+    }
     public static void main(String[] args) {
         Application.launch(args);
     }
