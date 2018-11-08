@@ -122,14 +122,15 @@ public class MakeXML extends Application {
           
         // XML文書の作成
         Element scene = document.createElement("Scene");
-        //scene.setAttribute("score", "2");
+        scene.setAttribute("score", "1");
         document.appendChild(scene);
-        Element VBox = document.createElement(a);
-        VBox.appendChild(document.createTextNode(ss.get(0)));       //Pos配置
-        VBox.setAttribute("score", "2");
+        Element Box = document.createElement(a);
+        Box.appendChild(document.createTextNode(ss.get(0)));       //Pos配置
+        Box.setAttribute("score", "1");
         //VBox.appendChild(document.createTextNode(s.get(0)));
         for (int i=0;  i<s.size(); i++) {
             Element Comp = document.createElement(s.get(i));
+            Comp.setAttribute("score", "1");
             if(!ss.get(i+1).isEmpty())      //空判定
                 Comp.appendChild(document.createTextNode(ss.get(i+1)));         //テキスト追加
             System.out.println(s.get(i));
@@ -140,6 +141,7 @@ public class MakeXML extends Application {
                     if(s.get(j).endsWith("HBox")) 
                         break;
                     Element Comp2 = document.createElement(s.get(j));
+                    Comp2.setAttribute("score", "1");
                     if(!ss.get(j+1).isEmpty())      //空判定
                         Comp2.appendChild(document.createTextNode(ss.get(j+1)));         //テキスト追加
                     //System.out.println(Comp2);
@@ -162,10 +164,10 @@ public class MakeXML extends Application {
                 i = j-1;
             }
             //System.out.println(Comp);
-            VBox.appendChild(Comp);
+            Box.appendChild(Comp);
             //VBox.appendChild(document.createTextNode(", " + s.get(i)));
         }
-        scene.appendChild(VBox);
+        scene.appendChild(Box);
         
         // XMLファイルの作成
         File file = new File("Tester.xml");

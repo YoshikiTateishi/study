@@ -41,11 +41,11 @@ import org.w3c.dom.NodeList;
  */
 public class XMLTester extends Application {
     
-    RamenOrderApp app;
+    TicketCalculator app;
     String nodeType;
     
     public void start(Stage primaryStage)  throws Exception{
-        app = new RamenOrderApp();
+        app = new TicketCalculator();
         app.start(primaryStage);
         Scene scene = primaryStage.getScene();      // Scene
         Parent root = scene.getRoot();
@@ -99,10 +99,10 @@ public class XMLTester extends Application {
             
         }
         //System.out.println(com);
-        data(nodeType, com);
+        StaticTest(nodeType, com);
     }
     
-    public static void data(String a, ArrayList<String> s) throws Exception {
+    public static void StaticTest(String a, ArrayList<String> s) throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.parse("Tester.xml");
@@ -171,6 +171,10 @@ public class XMLTester extends Application {
             }
         }
     }
+    
+    public static void DynamicTest() {
+    
+}
     
     public static void main(String[] args)  throws Exception{
         Application.launch(args);

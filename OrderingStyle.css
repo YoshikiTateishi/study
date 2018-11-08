@@ -1,0 +1,19 @@
+/* Exercise 12S: Style for Ordering App */
+
+.root {
+    -fx-font-size: 14pt;
+}
+
+.button {
+    -fx-background-color: steelblue;
+
+    -fx-text-fill: yellow;
+    -fx-font-family: sans-serif;
+    -fx-font-size: 20pt;
+    -fx-font-style: italic;
+    -fx-font-weight: bold;
+}
+
+.button:hover {
+    -fx-background-color: skyblue;
+}
