@@ -39,7 +39,7 @@ import org.w3c.dom.NodeList;
  *
  * @author yoshi
  */
-public class XMLTester extends Application {
+public class Test extends Application {
     
     TicketCalculator app;
     String nodeType;
@@ -103,7 +103,6 @@ public class XMLTester extends Application {
     }
     
     public static void StaticTest(String a, ArrayList<String> s) throws Exception {
-        System.out.println("-------------------");
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.parse("Tester.xml");
@@ -114,7 +113,7 @@ public class XMLTester extends Application {
         Element element = (Element)node;        //VBox
         //System.out.println(element.getNodeName());
         if(element.getNodeName().endsWith(a)) {
-            System.out.println(element.getNodeName() + ":OK");
+            System.out.println(element.getNodeName() + "：OK");
         }
         else {
             System.out.println(element.getNodeName() + ": NG");
@@ -128,7 +127,7 @@ public class XMLTester extends Application {
                 Element element2 = (Element)node2;
                 //System.out.println(element2.getNodeName());         // コンポーネント
                 if(element2.getNodeName().equals(s.get(cnt))) {
-                    System.out.println(element2.getNodeName() + ":OK");
+                    System.out.println(element2.getNodeName() + "：OK");
                 }
                 else {
                     System.out.println(element2.getNodeName() + "：NG");
@@ -171,9 +170,6 @@ public class XMLTester extends Application {
                 }
             }
         }
-        System.out.println();
-        System.out.println("点数：12/12");
-        System.out.println("-------------------");
     }
     
     public static void DynamicTest() {
