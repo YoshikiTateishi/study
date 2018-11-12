@@ -125,7 +125,7 @@ public class MakeXML extends Application {
         scene.setAttribute("score", "1");
         document.appendChild(scene);
         Element Box = document.createElement(a);
-        Box.appendChild(document.createTextNode(ss.get(0)));       //Pos配置
+        Box.setAttribute("Pos", ss.get(0));       //Pos配置
         Box.setAttribute("score", "1");
         //VBox.appendChild(document.createTextNode(s.get(0)));
         for (int i=0;  i<s.size(); i++) {
@@ -142,9 +142,9 @@ public class MakeXML extends Application {
                         break;
                     Element Comp2 = document.createElement(s.get(j));
                     Comp2.setAttribute("score", "1");
+                    //System.out.println(Comp2);
                     if(!ss.get(j+1).isEmpty())      //空判定
                         Comp2.appendChild(document.createTextNode(ss.get(j+1)));         //テキスト追加
-                    //System.out.println(Comp2);
                     Comp.appendChild(Comp2);
                     System.out.println(s.get(j));
                     if(s.get(j).endsWith("FlowPane")) {
@@ -164,7 +164,9 @@ public class MakeXML extends Application {
                 i = j-1;
             }
             //System.out.println(Comp);
+            
             Box.appendChild(Comp);
+
             //VBox.appendChild(document.createTextNode(", " + s.get(i)));
         }
         scene.appendChild(Box);
