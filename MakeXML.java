@@ -11,6 +11,7 @@ import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.scene.*;
 import javafx.scene.layout.*;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -30,11 +31,11 @@ import org.w3c.dom.Element;
  */
 public class MakeXML extends Application {
     
-    TicketCalculator app;
+    RamenOrderApp app;
     String nodeType;
     
     public void start(Stage primaryStage) {
-        app = new TicketCalculator();
+        app = new RamenOrderApp();
         app.start(primaryStage);
         Scene scene = primaryStage.getScene();      // Scene
         Parent root = scene.getRoot();       
@@ -43,7 +44,7 @@ public class MakeXML extends Application {
         ArrayList<String> subcom = new ArrayList<>();
         if(nodeType.endsWith("VBox")) {
             VBox pane = (VBox) root;
-            subcom.add(pane.getAlignment().toString());
+            subcom.add(pane.getAlignment().toString());     //Pos
             ol = pane.getChildren();
         }
         else if(nodeType.endsWith("HBox")) {
@@ -77,11 +78,16 @@ public class MakeXML extends Application {
                 ObservableList<Node> ol2 = pane2.getChildren();
                 int j;
                 for(j=0; j<ol2.size(); j++){
+                    System.out.println(ol2.get(j));
                     com.add(ol2.get(j).getClass().getSimpleName());
                     String[] st2 = ol2.get(j).toString().split("'");
-                    if(st2.length == 2)
+                    if(st2.length == 2)     //文字あり
                         subcom.add(st2[1]);
-                    else
+                    else if(ol2.get(j).getClass().getSimpleName().endsWith("TextField")) {      //テキストフィールド
+                        TextField tf = (TextField)ol2.get(j);
+                        subcom.add(tf.getText());
+                    }
+                    else        //文字なし
                         subcom.add("");
                     if(ol2.get(j).getClass().getSimpleName().endsWith("FlowPane")) {
                         FlowPane pane3 = (FlowPane) ol2.get(j);
@@ -108,6 +114,7 @@ public class MakeXML extends Application {
         }
         //System.out.println(com);
         data(nodeType,com,subcom);
+        primaryStage.close();
     }
     
         public static void data(String a, ArrayList<String> s, ArrayList<String> ss) {
