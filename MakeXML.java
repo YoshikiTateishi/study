@@ -31,11 +31,11 @@ import org.w3c.dom.Element;
  */
 public class MakeXML extends Application {
     
-    RamenOrderApp app;
+    TicketCalculator app;
     String nodeType;
     
     public void start(Stage primaryStage) {
-        app = new RamenOrderApp();
+        app = new TicketCalculator();
         app.start(primaryStage);
         Scene scene = primaryStage.getScene();      // Scene
         Parent root = scene.getRoot();       
@@ -66,8 +66,6 @@ public class MakeXML extends Application {
         //data(nodeType, 1);
         int i;
         ArrayList<String> com = new ArrayList<>();
-        
-
         //Map<String, String> prefs = new HashMap<>();
         for(i=0; i<ol.size(); i++) {
             com.add(ol.get(i).getClass().getSimpleName()); // コンポーネント
@@ -78,7 +76,6 @@ public class MakeXML extends Application {
                 ObservableList<Node> ol2 = pane2.getChildren();
                 int j;
                 for(j=0; j<ol2.size(); j++){
-                    System.out.println(ol2.get(j));
                     com.add(ol2.get(j).getClass().getSimpleName());
                     String[] st2 = ol2.get(j).toString().split("'");
                     if(st2.length == 2)     //文字あり
@@ -87,6 +84,11 @@ public class MakeXML extends Application {
                         TextField tf = (TextField)ol2.get(j);
                         subcom.add(tf.getText());
                     }
+                    else if(ol2.get(j).getClass().getSimpleName().endsWith("ComboBox")) {
+                        ComboBox cb = (ComboBox)ol2.get(j);
+                        System.out.println(cb.getItems());
+                        subcom.add(cb.getItems().toString());
+                   }
                     else        //文字なし
                         subcom.add("");
                     if(ol2.get(j).getClass().getSimpleName().endsWith("FlowPane")) {
@@ -113,11 +115,12 @@ public class MakeXML extends Application {
             }
         }
         //System.out.println(com);
-        data(nodeType,com,subcom);
+        data(nodeType, com, subcom);
         primaryStage.close();
+        System.out.println("XMLを作成しました。");
     }
     
-        public static void data(String a, ArrayList<String> s, ArrayList<String> ss) {
+    public static void data(String a, ArrayList<String> s, ArrayList<String> ss) {
         // Documentインスタンスの生成
         DocumentBuilder documentBuilder = null;
         try {
@@ -140,7 +143,6 @@ public class MakeXML extends Application {
             Comp.setAttribute("score", "1");
             if(!ss.get(i+1).isEmpty())      //空判定
                 Comp.appendChild(document.createTextNode(ss.get(i+1)));         //テキスト追加
-            System.out.println(s.get(i));
             //System.out.println(Comp);
             if(s.get(i).endsWith("HBox")) {
                 int j;
@@ -153,7 +155,6 @@ public class MakeXML extends Application {
                     if(!ss.get(j+1).isEmpty())      //空判定
                         Comp2.appendChild(document.createTextNode(ss.get(j+1)));         //テキスト追加
                     Comp.appendChild(Comp2);
-                    System.out.println(s.get(j));
                     if(s.get(j).endsWith("FlowPane")) {
                         int k;
                         for(k=j+1; k<s.size(); k++) {
@@ -163,7 +164,6 @@ public class MakeXML extends Application {
                             if(!ss.get(k+1).isEmpty())      //空判定
                                 Comp3.appendChild(document.createTextNode(ss.get(k+1)));         //テキスト追加
                             Comp2.appendChild(Comp3);
-                            System.out.println(s.get(k));
                         }
                         j = k-1;
                     }
@@ -209,9 +209,6 @@ public class MakeXML extends Application {
         return true;
     }
     
-    public static void aaa() {
-        
-    }
     public static void main(String[] args) {
         Application.launch(args);
     }

@@ -41,11 +41,11 @@ import org.w3c.dom.NodeList;
  */
 public class XMLTester extends Application {
     
-    TicketCalculator app;
+    RamenOrderApp app;
     String nodeType;
     
     public void start(Stage primaryStage)  throws Exception{
-        app = new TicketCalculator();
+        app = new RamenOrderApp();
         app.start(primaryStage);
         Scene scene = primaryStage.getScene();      // Scene
         Parent root = scene.getRoot();
@@ -100,6 +100,7 @@ public class XMLTester extends Application {
         }
         //System.out.println(com);
         StaticTest(nodeType, com);
+        primaryStage.close();
     }
     
     public static void StaticTest(String a, ArrayList<String> s) throws Exception {
