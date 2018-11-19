@@ -34,6 +34,7 @@ public class MakeXML extends Application {
     TicketCalculator app;
     String nodeType;
     
+    @Override
     public void start(Stage primaryStage) {
         app = new TicketCalculator();
         app.start(primaryStage);
@@ -120,7 +121,7 @@ public class MakeXML extends Application {
         System.out.println("XMLを作成しました。");
     }
     
-    public static void data(String a, ArrayList<String> s, ArrayList<String> ss) {
+    void data(String a, ArrayList<String> s, ArrayList<String> ss) {
         // Documentインスタンスの生成
         DocumentBuilder documentBuilder = null;
         try {
@@ -132,15 +133,13 @@ public class MakeXML extends Application {
           
         // XML文書の作成
         Element scene = document.createElement("Scene");
-        scene.setAttribute("score", "1");
+        //scene.setAttribute("score", "1");
         document.appendChild(scene);
         Element Box = document.createElement(a);
         Box.setAttribute("Pos", ss.get(0));       //Pos配置
-        Box.setAttribute("score", "1");
         //VBox.appendChild(document.createTextNode(s.get(0)));
         for (int i=0;  i<s.size(); i++) {
             Element Comp = document.createElement(s.get(i));
-            Comp.setAttribute("score", "1");
             if(!ss.get(i+1).isEmpty())      //空判定
                 Comp.appendChild(document.createTextNode(ss.get(i+1)));         //テキスト追加
             //System.out.println(Comp);
@@ -150,7 +149,6 @@ public class MakeXML extends Application {
                     if(s.get(j).endsWith("HBox")) 
                         break;
                     Element Comp2 = document.createElement(s.get(j));
-                    Comp2.setAttribute("score", "1");
                     //System.out.println(Comp2);
                     if(!ss.get(j+1).isEmpty())      //空判定
                         Comp2.appendChild(document.createTextNode(ss.get(j+1)));         //テキスト追加
@@ -183,7 +181,7 @@ public class MakeXML extends Application {
         write(file, document);
     }
     
-    public static boolean write(File file, Document document) {
+    boolean write(File file, Document document) {
 
         // Transformerインスタンスの生成
         Transformer transformer = null;

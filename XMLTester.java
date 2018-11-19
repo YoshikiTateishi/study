@@ -179,7 +179,7 @@ public class XMLTester extends Application {
     
     public static void DynamicTest() {
     
-}
+    }
     
     public static void main(String[] args)  throws Exception{
         Application.launch(args);
