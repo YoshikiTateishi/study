@@ -38,24 +38,29 @@ public class MakeXML extends Application {
     public void start(Stage primaryStage) {
         app = new TicketCalculator();
         app.start(primaryStage);
-        Scene scene = primaryStage.getScene();      // Scene
+        getCom(primaryStage);
+    }
+    
+    void getCom(Stage pStage) {
+         Scene scene = pStage.getScene();      // Scene
         Parent root = scene.getRoot();       
         nodeType = root.getClass().getSimpleName();      // VBox
         ObservableList<Node> ol = null;
-        ArrayList<String> subcom = new ArrayList<>();
+        ArrayList<String> textList = new ArrayList<>();
+        ArrayList<String> posList = new ArrayList<>();
         if(nodeType.endsWith("VBox")) {
             VBox pane = (VBox) root;
-            subcom.add(pane.getAlignment().toString());     //Pos
+            posList.add(pane.getAlignment().toString());     //Pos
             ol = pane.getChildren();
         }
         else if(nodeType.endsWith("HBox")) {
             HBox pane = (HBox) root;
-            subcom.add(pane.getAlignment().toString());
+            posList.add(pane.getAlignment().toString());
+            textList.add("");
             ol = pane.getChildren();
         }
         else if(nodeType.endsWith("BorderPane")) {
             BorderPane pane = (BorderPane) root;
-            subcom.add("");
             ol = pane.getChildren();
         }
         else if(nodeType.endsWith("GridPane")) {
@@ -66,43 +71,44 @@ public class MakeXML extends Application {
         //System.out.println(pane.getAlignment());
         //data(nodeType, 1);
         int i;
-        ArrayList<String> com = new ArrayList<>();
+        ArrayList<String> comList = new ArrayList<>();
         //Map<String, String> prefs = new HashMap<>();
         for(i=0; i<ol.size(); i++) {
-            com.add(ol.get(i).getClass().getSimpleName()); // コンポーネント
+            comList.add(ol.get(i).getClass().getSimpleName()); // コンポーネント
             //data(com, 2);
             if(ol.get(i).getClass().getSimpleName().endsWith("HBox")) {
                 HBox pane2 = (HBox) ol.get(i);
-                subcom.add(pane2.getAlignment().toString());
+                posList.add(pane2.getAlignment().toString());
+                textList.add("");
                 ObservableList<Node> ol2 = pane2.getChildren();
                 int j;
                 for(j=0; j<ol2.size(); j++){
-                    com.add(ol2.get(j).getClass().getSimpleName());
+                    comList.add(ol2.get(j).getClass().getSimpleName());
                     String[] st2 = ol2.get(j).toString().split("'");
                     if(st2.length == 2)     //文字あり
-                        subcom.add(st2[1]);
+                        textList.add(st2[1]);
                     else if(ol2.get(j).getClass().getSimpleName().endsWith("TextField")) {      //テキストフィールド
                         TextField tf = (TextField)ol2.get(j);
-                        subcom.add(tf.getText());
+                        textList.add(tf.getText());
                     }
-                    else if(ol2.get(j).getClass().getSimpleName().endsWith("ComboBox")) {
+                    else if(ol2.get(j).getClass().getSimpleName().endsWith("ComboBox")) {       //コンボボックス
                         ComboBox cb = (ComboBox)ol2.get(j);
                         System.out.println(cb.getItems());
-                        subcom.add(cb.getItems().toString());
+                        textList.add(cb.getItems().toString());
                    }
                     else        //文字なし
-                        subcom.add("");
+                        textList.add("");
                     if(ol2.get(j).getClass().getSimpleName().endsWith("FlowPane")) {
                         FlowPane pane3 = (FlowPane) ol2.get(j);
                         ObservableList<Node> ol3 = pane3.getChildren();
                         int k;
                         for(k=0; k<ol3.size(); k++) {
-                            com.add(ol3.get(k).getClass().getSimpleName());
+                            comList.add(ol3.get(k).getClass().getSimpleName());
                             String[] st3 = ol3.get(k).toString().split("'");
                             if(st3.length == 2)
-                                subcom.add(st3[1]);
+                                textList.add(st3[1]);
                             else
-                                subcom.add("");
+                                textList.add("");
                         }
                     }
                 }
@@ -110,14 +116,14 @@ public class MakeXML extends Application {
             else {
                 String[] st = ol.get(i).toString().split("'");
                 if(st.length == 2)
-                    subcom.add(st[1]);
+                    textList.add(st[1]);
                 else
-                    subcom.add("");
+                    textList.add("");
             }
         }
         //System.out.println(com);
-        data(nodeType, com, subcom);
-        primaryStage.close();
+        data(nodeType, comList, textList);
+        pStage.close();
         System.out.println("XMLを作成しました。");
     }
     
@@ -133,13 +139,16 @@ public class MakeXML extends Application {
           
         // XML文書の作成
         Element scene = document.createElement("Scene");
+        scene.setAttribute("ID", "0");
         //scene.setAttribute("score", "1");
         document.appendChild(scene);
         Element Box = document.createElement(a);
+        Box.setAttribute("ID", "1");
         Box.setAttribute("Pos", ss.get(0));       //Pos配置
         //VBox.appendChild(document.createTextNode(s.get(0)));
         for (int i=0;  i<s.size(); i++) {
             Element Comp = document.createElement(s.get(i));
+            Comp.setAttribute("ID", String.valueOf(i+2));
             if(!ss.get(i+1).isEmpty())      //空判定
                 Comp.appendChild(document.createTextNode(ss.get(i+1)));         //テキスト追加
             //System.out.println(Comp);
@@ -149,6 +158,7 @@ public class MakeXML extends Application {
                     if(s.get(j).endsWith("HBox")) 
                         break;
                     Element Comp2 = document.createElement(s.get(j));
+                    Comp2.setAttribute("ID", String.valueOf(j+2));
                     //System.out.println(Comp2);
                     if(!ss.get(j+1).isEmpty())      //空判定
                         Comp2.appendChild(document.createTextNode(ss.get(j+1)));         //テキスト追加
@@ -159,6 +169,7 @@ public class MakeXML extends Application {
                             if(s.get(k).endsWith("HBox")) 
                                 break;
                             Element Comp3 = document.createElement(s.get(k));
+                            Comp3.setAttribute("ID", String.valueOf(k+2));
                             if(!ss.get(k+1).isEmpty())      //空判定
                                 Comp3.appendChild(document.createTextNode(ss.get(k+1)));         //テキスト追加
                             Comp2.appendChild(Comp3);
