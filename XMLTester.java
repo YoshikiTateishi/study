@@ -5,7 +5,10 @@
  */
 package xml;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -100,6 +103,7 @@ public class XMLTester extends Application {
         }
         //System.out.println(com);
         StaticTest(nodeType, com);
+        DynamicTest();
         primaryStage.close();
     }
     
@@ -108,7 +112,7 @@ public class XMLTester extends Application {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.parse("Tester.xml");
-        
+        int point = 0;
         Element root = document.getDocumentElement();       //Scene          
         NodeList nodeList = root.getChildNodes();       //VBox
         org.w3c.dom.Node node = nodeList.item(1);
@@ -116,6 +120,7 @@ public class XMLTester extends Application {
         //System.out.println(element.getNodeName());
         if(element.getNodeName().endsWith(a)) {
             System.out.println(element.getNodeName() + ":OK");
+            point++;
         }
         else {
             System.out.println(element.getNodeName() + ": NG");
@@ -130,6 +135,7 @@ public class XMLTester extends Application {
                 //System.out.println(element2.getNodeName());         // コンポーネント
                 if(element2.getNodeName().equals(s.get(cnt))) {
                     System.out.println(element2.getNodeName() + ":OK");
+                    point++;
                 }
                 else {
                     System.out.println(element2.getNodeName() + "：NG");
@@ -144,6 +150,7 @@ public class XMLTester extends Application {
                             Element element3 = (Element) node3;
                             if(element3.getNodeName().equals(s.get(cnt))) {
                                 System.out.println(element3.getNodeName() + "：OK");
+                                point++;
                             }
                             else {
                                 System.out.println(element3.getNodeName() + "：NG");
@@ -158,6 +165,7 @@ public class XMLTester extends Application {
                                         Element element4 = (Element) node4;
                                         if(element4.getNodeName().equals(s.get(cnt))) {
                                             System.out.println(element4.getNodeName() + "：OK");
+                                            point++;
                                         }
                                         else {
                                             System.out.println(element4.getNodeName() + "：NG");
@@ -173,12 +181,22 @@ public class XMLTester extends Application {
             }
         }
         System.out.println();
-        System.out.println("点数：12/12");
+        cnt++;
+        System.out.println("点数：" + point + "/" + cnt);
         System.out.println("-------------------");
     }
     
-    public static void DynamicTest() {
-    
+    public static void DynamicTest() throws Exception {
+        File file = new File("Tester.xml");
+        FileReader filereader = new FileReader(file);
+        BufferedReader br = new BufferedReader(filereader);
+        
+        String str = br.readLine();
+        while(str != null) {
+            System.out.println(str);
+            str = br.readLine();
+        }
+        br.close();
     }
     
     public static void main(String[] args)  throws Exception{
