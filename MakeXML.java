@@ -11,9 +11,11 @@ import javafx.collections.ObservableList;
 import javafx.scene.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -22,6 +24,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -97,7 +100,6 @@ public class MakeXML extends Application {
                     Comp2.setAttribute("ID", String.valueOf(cnt));
                     cnt++;
                     String[] st2 = ol2.get(j).toString().split("'");
-                    System.out.println(ol2.get(j));
                     if(st2.length == 2)     //文字あり
                         Comp2.appendChild(document.createTextNode((st2[1])));         //テキスト追加
                     else if(ol2.get(j).getClass().getSimpleName().endsWith("TextField")) {      //テキストフィールド
@@ -121,7 +123,6 @@ public class MakeXML extends Application {
                             Comp3.setAttribute("ID", String.valueOf(cnt));
                             cnt++;
                             String[] st3 = ol3.get(k).toString().split("'");
-                            System.out.println(ol3.get(k));
                             if(st3.length == 2)
                                 Comp3.appendChild(document.createTextNode((st3[1])));         //テキスト追加
                             Comp2.appendChild(Comp3);
@@ -133,17 +134,21 @@ public class MakeXML extends Application {
             
             else {
                 String[] st = ol.get(i).toString().split("'");
-                System.out.println(ol.get(i));
                 if(st.length == 2)
                     Comp.appendChild(document.createTextNode((st[1])));         //テキスト追加
+                else if(com.endsWith("TextField")) {      //テキストフィールド
+                    TextField tf = (TextField)ol.get(i);
+                    Comp.appendChild(document.createTextNode((tf.getText())));
+                }
             }
             Box.appendChild(Comp);
         }
         scene.appendChild(Box);
         
         // XMLファイルの作成
-        File file = new File("Tester.xml");
+        File file = new File("kadai.xml");
         write(file, document);
+        StaticTest();
         
         primaryStage.close();
         System.out.println("XMLを作成しました。");
@@ -172,6 +177,33 @@ public class MakeXML extends Application {
             return false;
         }
         return true;
+    }
+    
+    void StaticTest() throws Exception { 
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("XMLファイルを選択");
+        chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("XML files", "*.xml*"));
+        File TesterFile = chooser.showOpenDialog(null);
+        
+        Document Tester = builder.parse(TesterFile);
+        Document kadai = builder.parse("kadai.xml");
+        
+        int point = 0;
+        Element TesterRoot = Tester.getDocumentElement();       //Scene
+        Element kadaiRoot = kadai.getDocumentElement();       //Scene
+        if(TesterRoot.getNodeName().endsWith(kadaiRoot.getNodeName()))
+            System.out.println(TesterRoot.getNodeName() + "：OK");
+        NodeList TesterNodeList = TesterRoot.getChildNodes();
+        NodeList kadaiNodeList = kadaiRoot.getChildNodes();
+        org.w3c.dom.Node TesterNode = TesterNodeList.item(1);
+        org.w3c.dom.Node kadaiNode = kadaiNodeList.item(1);
+        Element TesterElement = (Element)TesterNode;        //VBox
+        Element kadaiElement = (Element)kadaiNode;        //VBox
+        if(TesterElement.getNodeName().endsWith(kadaiElement.getNodeName()))
+            System.out.println(TesterElement.getNodeName() + "：OK");
     }
     
     public static void main(String[] args) {
