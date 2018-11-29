@@ -152,7 +152,6 @@ public class MakeXML extends Application {
         
         primaryStage.close();
         System.out.println("XMLを作成しました。");
-        
     }
     
     boolean write(File file, Document document) {
@@ -204,6 +203,27 @@ public class MakeXML extends Application {
         Element kadaiElement = (Element)kadaiNode;        //VBox
         if(TesterElement.getNodeName().endsWith(kadaiElement.getNodeName()))
             System.out.println(TesterElement.getNodeName() + "：OK");
+        //コンポーネント
+        NodeList TesterNodeList2 = TesterElement.getChildNodes();
+        NodeList kadaiNodeList2 = kadaiElement.getChildNodes();
+        int cnt = 0;
+        for(int i=0; i<kadaiNodeList2.getLength(); i++) {
+            org.w3c.dom.Node TesterNode2 = TesterNodeList2.item(i);
+            org.w3c.dom.Node kadaiNode2 = kadaiNodeList2.item(i);
+            if(TesterNode2.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE && kadaiNode2.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+                Element TesterElement2 = (Element) TesterNode2;
+                Element kadaiElement2 = (Element) kadaiNode2;
+                if(TesterElement2.getNodeName().endsWith(kadaiElement2.getNodeName()))
+                    System.out.println(TesterElement2.getNodeName() + "：OK");
+                if(TesterElement2.getNodeName().endsWith("HBox")) {
+                    NodeList TesterNodeList3 = TesterElement2.getChildNodes();
+                    NodeList kadaiNodeList3 = kadaiElement2.getChildNodes();
+                    for(int j=0; j<kadaiNodeList.getLength(); j++) {
+                        //ここから
+                    }
+                }
+            }
+        }
     }
     
     public static void main(String[] args) {
