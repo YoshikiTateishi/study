@@ -31,10 +31,15 @@ import org.w3c.dom.NodeList;
  * @author yoshi
  */
 public class MakeXML extends Application {
+    
+    Element Box;
+    ObservableList<Node> ol;
+    RamenOrderApp app;
+            
     @Override
     public void start(Stage primaryStage) throws Exception {
         //ここに採点するクラス名を入力
-        RamenOrderApp app = new RamenOrderApp();
+        app = new RamenOrderApp();
         app.start(primaryStage);
         
          // Documentインスタンスの生成
@@ -49,46 +54,25 @@ public class MakeXML extends Application {
         document.appendChild(scene);
         
         //レイアウトペイン
-        Parent root = scene1.getRoot();       
+        Parent root = scene1.getRoot();
         String nodeType = root.getClass().getSimpleName();
-        Element Box = document.createElement(nodeType);
-        ObservableList<Node> ol = null;
-        //ペイン一覧
-        if(nodeType.endsWith("VBox")) {
-            VBox pane = (VBox) root;
-            Box.setAttribute("ID", "1");
-            Box.setAttribute("Pos", pane.getAlignment().toString());       //Pos配置
-            ol = pane.getChildren();
-        }
-        else if(nodeType.endsWith("HBox")) {
-            HBox pane = (HBox) root;
-            Box.setAttribute("ID", "1");
-            Box.setAttribute("Pos", pane.getAlignment().toString());
-            ol = pane.getChildren();
-        }
-        else if(nodeType.endsWith("BorderPane")) {
-            BorderPane pane = (BorderPane) root;
-            Box.setAttribute("ID", "1");
-            ol = pane.getChildren();
-        }
-        else if(nodeType.endsWith("GridPane")) {
-            GridPane pane = (GridPane) root;
-            Box.setAttribute("ID", "1");
-            ol = pane.getChildren();
-        }
+        Box = document.createElement(nodeType);
+        Box.setAttribute("ID", "1");
+        ObservableList<Node> ol1 = PaneHantei((Node) root);
         
         //コンポーネント
         int i;
         int cnt = 2;
         //ArrayList<String> comList = new ArrayList<>();
         //Map<String, String> prefs = new HashMap<>();
-        for(i=0; i<ol.size(); i++) {
-            String com = ol.get(i).getClass().getSimpleName();      // コンポーネント名
+        for(i=0; i<ol1.size(); i++) {
+            String com = ol1.get(i).getClass().getSimpleName();      // コンポーネント名
             Element Comp = document.createElement(com);
             Comp.setAttribute("ID", String.valueOf(cnt));
             cnt++;
+            System.out.println(ol1.get(i));
             if(com.endsWith("HBox")) {
-                HBox pane2 = (HBox) ol.get(i);
+                HBox pane2 = (HBox) ol1.get(i);
                 Comp.setAttribute("Pos", pane2.getAlignment().toString());
                 ObservableList<Node> ol2 = pane2.getChildren();
                 
@@ -146,10 +130,8 @@ public class MakeXML extends Application {
         scene.appendChild(Box);
         
         // XMLファイルの作成
-        File file = new File("kadai.xml");
+        File file = new File("Tester.xml");
         write(file, document);
-        StaticTest();
-        
         primaryStage.close();
         System.out.println("XMLを作成しました。");
     }
@@ -178,53 +160,29 @@ public class MakeXML extends Application {
         return true;
     }
     
-    void StaticTest() throws Exception { 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("XMLファイルを選択");
-        chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("XML files", "*.xml*"));
-        File TesterFile = chooser.showOpenDialog(null);
-        
-        Document Tester = builder.parse(TesterFile);
-        Document kadai = builder.parse("kadai.xml");
-        
-        int point = 0;
-        Element TesterRoot = Tester.getDocumentElement();       //Scene
-        Element kadaiRoot = kadai.getDocumentElement();       //Scene
-        if(TesterRoot.getNodeName().endsWith(kadaiRoot.getNodeName()))
-            System.out.println(TesterRoot.getNodeName() + "：OK");
-        NodeList TesterNodeList = TesterRoot.getChildNodes();
-        NodeList kadaiNodeList = kadaiRoot.getChildNodes();
-        org.w3c.dom.Node TesterNode = TesterNodeList.item(1);
-        org.w3c.dom.Node kadaiNode = kadaiNodeList.item(1);
-        Element TesterElement = (Element)TesterNode;        //VBox
-        Element kadaiElement = (Element)kadaiNode;        //VBox
-        if(TesterElement.getNodeName().endsWith(kadaiElement.getNodeName()))
-            System.out.println(TesterElement.getNodeName() + "：OK");
-        //コンポーネント
-        NodeList TesterNodeList2 = TesterElement.getChildNodes();
-        NodeList kadaiNodeList2 = kadaiElement.getChildNodes();
-        int cnt = 0;
-        for(int i=0; i<kadaiNodeList2.getLength(); i++) {
-            org.w3c.dom.Node TesterNode2 = TesterNodeList2.item(i);
-            org.w3c.dom.Node kadaiNode2 = kadaiNodeList2.item(i);
-            if(TesterNode2.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE && kadaiNode2.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
-                Element TesterElement2 = (Element) TesterNode2;
-                Element kadaiElement2 = (Element) kadaiNode2;
-                if(TesterElement2.getNodeName().endsWith(kadaiElement2.getNodeName()))
-                    System.out.println(TesterElement2.getNodeName() + "：OK");
-                if(TesterElement2.getNodeName().endsWith("HBox")) {
-                    NodeList TesterNodeList3 = TesterElement2.getChildNodes();
-                    NodeList kadaiNodeList3 = kadaiElement2.getChildNodes();
-                    for(int j=0; j<kadaiNodeList.getLength(); j++) {
-                        //ここから
-                    }
-                }
-            }
+    ObservableList<Node> PaneHantei(Node element0) {
+        if(element0.getClass().getSimpleName().endsWith("VBox")) {
+            VBox pane = (VBox) element0;
+            Box.setAttribute("Pos", pane.getAlignment().toString());       //Pos配置
+            ol = pane.getChildren();
         }
+        else if(element0.getClass().getSimpleName().endsWith("HBox")) {
+            HBox pane = (HBox) element0;
+            Box.setAttribute("Pos", pane.getAlignment().toString());
+            ol = pane.getChildren();
+        }
+        else if(element0.getClass().getSimpleName().endsWith("BorderPane")) {
+            BorderPane pane = (BorderPane) element0;
+            ol = pane.getChildren();
+        }
+        else if(element0.getClass().getSimpleName().endsWith("GridPane")) {
+            GridPane pane = (GridPane) element0;
+            ol = pane.getChildren();
+        }
+        return ol;
     }
+    
+    
     
     public static void main(String[] args) {
         Application.launch(args);
