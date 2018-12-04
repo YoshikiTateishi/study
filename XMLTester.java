@@ -34,11 +34,12 @@ public class XMLTester extends Application {
     
     Element Box;
     ObservableList<Node> ol;
+    Document kadai;
             
     @Override
     public void start(Stage primaryStage) throws Exception {
         //ここに採点するクラス名を入力
-        DenominationApp app = new DenominationApp();
+        RamenOrderApp app = new RamenOrderApp();
         app.start(primaryStage);
         
          // Documentインスタンスの生成
@@ -58,7 +59,7 @@ public class XMLTester extends Application {
         Box = document.createElement(nodeType);
         Box.setAttribute("ID", "1");
         
-        ObservableList<Node> ol1 = PaneHantei((Element)root);
+        ObservableList<Node> ol1 = PaneHantei((Node)root);
         
         //コンポーネント
         int i;
@@ -134,7 +135,6 @@ public class XMLTester extends Application {
         StaticTest();
         
         primaryStage.close();
-        System.out.println("XMLを作成しました。");
     }
     
     boolean write(File file, Document document) {
@@ -171,7 +171,7 @@ public class XMLTester extends Application {
         File TesterFile = chooser.showOpenDialog(null);
         
         Document Tester = builder.parse(TesterFile);
-        Document kadai = builder.parse("kadai.xml");
+        kadai = builder.parse("kadai.xml");
         
         int point = 0;
         Element TesterRoot = Tester.getDocumentElement();       //Scene
@@ -209,6 +209,20 @@ public class XMLTester extends Application {
                             Element kadaiElement3 = (Element) kadaiNode3;
                             if(TesterElement3.getNodeName().endsWith(kadaiElement3.getNodeName()))
                                 System.out.println(TesterElement3.getNodeName() + "：OK");
+                            if(TesterElement3.getNodeName().endsWith("FlowPane")) {
+                                NodeList TesterNodeList4 = TesterElement3.getChildNodes();
+                                NodeList kadaiNodeList4 = kadaiElement3.getChildNodes();
+                                for(int k=0; k<kadaiNodeList4.getLength(); k++) {
+                                    org.w3c.dom.Node TesterNode4 = TesterNodeList4.item(k);
+                                    org.w3c.dom.Node kadaiNode4 = kadaiNodeList4.item(k);
+                                    if(TesterNode4.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE && kadaiNode4.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+                                        Element TesterElement4 = (Element) TesterNode4;
+                                        Element kadaiElement4 = (Element) kadaiNode4;
+                                        if(TesterElement4.getNodeName().endsWith(kadaiElement4.getNodeName()))
+                                            System.out.println(TesterElement4.getNodeName() + "：OK");
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -216,7 +230,11 @@ public class XMLTester extends Application {
         }
     }
     
-    ObservableList<Node> PaneHantei(Element element0) {
+    void DynamicTest() {
+        System.out.println(kadai);
+    }
+    
+    ObservableList<Node> PaneHantei(Node element0) {
         if(element0.getClass().getSimpleName().endsWith("VBox")) {
             VBox pane = (VBox) element0;
             Box.setAttribute("Pos", pane.getAlignment().toString());       //Pos配置
