@@ -34,12 +34,12 @@ public class MakeXML extends Application {
     
     Element Box;
     ObservableList<Node> ol;
-    RamenOrderApp app;
+    TicketCalculator app;
             
     @Override
     public void start(Stage primaryStage) throws Exception {
         //ここに採点するクラス名を入力
-        app = new RamenOrderApp();
+        app = new TicketCalculator();
         app.start(primaryStage);
         
          // Documentインスタンスの生成

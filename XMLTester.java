@@ -6,6 +6,10 @@
 package xml;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.scene.*;
@@ -35,12 +39,15 @@ public class XMLTester extends Application {
     Element Box;
     ObservableList<Node> ol;
     Document kadai;
+    Map<Integer, String> comList;
             
     @Override
     public void start(Stage primaryStage) throws Exception {
         //ここに採点するクラス名を入力
-        RamenOrderApp app = new RamenOrderApp();
+        TicketCalculator app = new TicketCalculator();
         app.start(primaryStage);
+        
+        comList = new HashMap<>();
         
          // Documentインスタンスの生成
         DocumentBuilder documentBuilder;
@@ -51,6 +58,7 @@ public class XMLTester extends Application {
         Scene scene1 = primaryStage.getScene();      // Scene
         Element scene = document.createElement("Scene");
         scene.setAttribute("ID", "0");
+        comList.put(0, "scene");
         document.appendChild(scene);
         
         //レイアウトペイン
@@ -58,6 +66,7 @@ public class XMLTester extends Application {
         String nodeType = root.getClass().getSimpleName();
         Box = document.createElement(nodeType);
         Box.setAttribute("ID", "1");
+        comList.put(1, nodeType);
         
         ObservableList<Node> ol1 = PaneHantei((Node)root);
         
@@ -70,6 +79,7 @@ public class XMLTester extends Application {
             String com = ol1.get(i).getClass().getSimpleName();      // コンポーネント名
             Element Comp = document.createElement(com);
             Comp.setAttribute("ID", String.valueOf(cnt));
+            comList.put(cnt, com);
             cnt++;
             if(com.endsWith("HBox")) {
                 HBox pane2 = (HBox) ol1.get(i);
@@ -82,6 +92,7 @@ public class XMLTester extends Application {
                     String com2 = ol2.get(j).getClass().getSimpleName();      // コンポーネント名
                     Element Comp2 = document.createElement(com2);
                     Comp2.setAttribute("ID", String.valueOf(cnt));
+                    comList.put(cnt, com2);
                     cnt++;
                     String[] st2 = ol2.get(j).toString().split("'");
                     if(st2.length == 2)     //文字あり
@@ -105,6 +116,7 @@ public class XMLTester extends Application {
                             String com3 = ol3.get(k).getClass().getSimpleName();      // コンポーネント名
                             Element Comp3 = document.createElement(com3);
                             Comp3.setAttribute("ID", String.valueOf(cnt));
+                            comList.put(cnt, com3);
                             cnt++;
                             String[] st3 = ol3.get(k).toString().split("'");
                             if(st3.length == 2)
@@ -133,7 +145,7 @@ public class XMLTester extends Application {
         File file = new File("kadai.xml");
         write(file, document);
         StaticTest();
-        
+        DynamicTest();
         primaryStage.close();
     }
     
@@ -230,8 +242,52 @@ public class XMLTester extends Application {
         }
     }
     
-    void DynamicTest() {
-        System.out.println(kadai);
+    void DynamicTest() throws Exception {
+        Element kadaiRoot = kadai.getDocumentElement();       //Scene
+        NodeList kadaiNodeList = kadaiRoot.getChildNodes();
+        org.w3c.dom.Node kadaiNode = kadaiNodeList.item(1);
+        Element kadaiElement = (Element)kadaiNode;        //VBox
+        //コンポーネント
+        NodeList kadaiNodeList2 = kadaiElement.getChildNodes();
+        int cnt = 0;
+        for(int i=0; i<kadaiNodeList2.getLength(); i++) {
+            org.w3c.dom.Node kadaiNode2 = kadaiNodeList2.item(i);
+            if(kadaiNode2.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+                Element kadaiElement2 = (Element) kadaiNode2;
+                if(kadaiElement2.getNodeName().endsWith("HBox")) {
+                    NodeList kadaiNodeList3 = kadaiElement2.getChildNodes();
+                    for(int j=0; j<kadaiNodeList3.getLength(); j++) {
+                        org.w3c.dom.Node kadaiNode3 = kadaiNodeList3.item(j);
+                        if(kadaiNode3.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+                            Element kadaiElement3 = (Element) kadaiNode3;
+                            if((Node)kadaiElement3 instanceof ButtonBase) {
+                                ArrayList <String> al = new ArrayList<>();
+                                al.add(kadaiElement3.getTextContent());
+                                ComboBoxAct(al);
+                                
+                            }
+                            if(kadaiElement3.getNodeName().endsWith("FlowPane")) {
+                                NodeList kadaiNodeList4 = kadaiElement3.getChildNodes();
+                                for(int k=0; k<kadaiNodeList4.getLength(); k++) {
+                                    org.w3c.dom.Node kadaiNode4 = kadaiNodeList4.item(k);
+                                    if(kadaiNode4.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+                                        Element kadaiElement4 = (Element) kadaiNode4;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    void ComboBoxAct(ArrayList al) {
+        
+    } 
+    
+    void ButtonAct() {
+        
     }
     
     ObservableList<Node> PaneHantei(Node element0) {
