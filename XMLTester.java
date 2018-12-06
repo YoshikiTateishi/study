@@ -6,11 +6,7 @@
 package xml;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.scene.*;
@@ -20,7 +16,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -38,120 +33,79 @@ import org.w3c.dom.NodeList;
 public class XMLTester extends Application {
     
     Stage primaryStage;
-    TicketCalculator app;
-    Element Box;
-    ObservableList<Node> ol;
-    Document kadai;
+    Document document;
+    int cnt = 2;
     LinkedHashMap<Integer, Node> comList;
             
     @Override
     public void start(Stage primaryStage) throws Exception {
+        this.primaryStage = primaryStage;
         //ここに採点するクラス名を入力
-        app = new TicketCalculator();
+        TicketCalculator app = new TicketCalculator();
         app.start(primaryStage);
-        
-        comList = new LinkedHashMap<>();        //IDとノード格納
-         // Documentインスタンスの生成
-        DocumentBuilder documentBuilder;
-        documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document document = documentBuilder.newDocument();
-        
-        //シーン
-        Scene scene1 = primaryStage.getScene();      // Scene
-        Element scene = document.createElement("Scene");
-        scene.setAttribute("ID", "0");
-        //comList.put(0, (Node)scene);
-        document.appendChild(scene);
-        
-        //レイアウトペイン
-        Parent root = scene1.getRoot();       
-        String nodeType = root.getClass().getSimpleName();
-        Box = document.createElement(nodeType);
-        Box.setAttribute("ID", "1");
-        comList.put(1, (Node)root);
-        
-        ObservableList<Node> ol1 = PaneHantei((Node)root);
-        
-        //コンポーネント
-        int i;
-        int cnt = 2;
-        //ArrayList<String> comList = new ArrayList<>();
-        //Map<String, String> prefs = new HashMap<>();
-        for(i=0; i<ol1.size(); i++) {
-            String com = ol1.get(i).getClass().getSimpleName();      // コンポーネント名
-            Element Comp = document.createElement(com);
-            Comp.setAttribute("ID", String.valueOf(cnt));
-            comList.put(cnt, ol1.get(i));
-            cnt++;
-            if(com.endsWith("HBox")) {
-                HBox pane2 = (HBox) ol1.get(i);
-                Comp.setAttribute("Pos", pane2.getAlignment().toString());
-                ObservableList<Node> ol2 = pane2.getChildren();
-                
-                //コンポーネント2
-                int j;
-                for(j=0; j<ol2.size(); j++){
-                    String com2 = ol2.get(j).getClass().getSimpleName();      // コンポーネント名
-                    Element Comp2 = document.createElement(com2);
-                    Comp2.setAttribute("ID", String.valueOf(cnt));
-                    comList.put(cnt, ol2.get(j));
-                    cnt++;
-                    String[] st2 = ol2.get(j).toString().split("'");
-                    if(st2.length == 2)     //文字あり
-                        Comp2.appendChild(document.createTextNode((st2[1])));         //テキスト追加
-                    else if(ol2.get(j).getClass().getSimpleName().endsWith("TextField")) {      //テキストフィールド
-                        TextField tf = (TextField)ol2.get(j);
-                        Comp2.appendChild(document.createTextNode((tf.getText())));
-                    }
-                    else if(ol2.get(j).getClass().getSimpleName().endsWith("ComboBox")) {       //コンボボックス
-                        ComboBox cb = (ComboBox)ol2.get(j);
-                        Comp2.appendChild(document.createTextNode((cb.getItems().toString())));
-                    }
-                    
-                    if(ol2.get(j).getClass().getSimpleName().endsWith("FlowPane")) {
-                        FlowPane pane3 = (FlowPane) ol2.get(j);
-                        ObservableList<Node> ol3 = pane3.getChildren();
-                        
-                        //コンポーネント3
-                        int k;
-                        for(k=0; k<ol3.size(); k++) {
-                            String com3 = ol3.get(k).getClass().getSimpleName();      // コンポーネント名
-                            Element Comp3 = document.createElement(com3);
-                            Comp3.setAttribute("ID", String.valueOf(cnt));
-                            comList.put(cnt, ol3.get(k));
-                            String[] st3 = ol3.get(k).toString().split("'");
-                            if(st3.length == 2)
-                                Comp3.appendChild(document.createTextNode((st3[1])));         //テキスト追加
-                            Comp2.appendChild(Comp3);
-                        }
-                    }
-                    Comp.appendChild(Comp2);
-                }
-            }
-            
-            else {
-                String[] st = ol.get(i).toString().split("'");
-                if(st.length == 2)
-                    Comp.appendChild(document.createTextNode((st[1])));         //テキスト追加
-                else if(com.endsWith("TextField")) {      //テキストフィールド
-                    TextField tf = (TextField)ol.get(i);
-                    Comp.appendChild(document.createTextNode((tf.getText())));
-                }
-            }
-            Box.appendChild(Comp);
-        }
-        scene.appendChild(Box);
+        getNodeList();
         
         // XMLファイルの作成
-        File file = new File("kadai.xml");
+        File file = new File("Kadai.xml");
         write(file, document);
+        
         StaticTest();
         DynamicTest();
         //primaryStage.close();
     }
     
+    void getNodeList() throws Exception {
+        comList = new LinkedHashMap<>();        //IDとノード格納
+        
+        // Documentインスタンスの生成
+        DocumentBuilder documentBuilder;
+        documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        document = documentBuilder.newDocument();
+        
+        //シーン
+        Scene scene1 = primaryStage.getScene();      // Scene
+        Element scene = document.createElement("Scene");
+        scene.setAttribute("ID", "0");
+        document.appendChild(scene);
+        
+        //レイアウトペイン
+        Parent root = scene1.getRoot();
+        String nodeType = root.getClass().getSimpleName();
+        Element Box = document.createElement(nodeType);
+        Box.setAttribute("ID", "1");
+        PaneHantei((Node) root, Box);    //POSデータ判定、書き込み
+        comList.put(1, (Node) root);
+        
+        //コンポーネント
+        getCom(Box, root);
+        scene.appendChild(Box);
+        
+        
+    }
+    
+    //コンポーネント読み込みメソッド
+    void getCom(Element cp, Parent p) {
+        ObservableList<Node> children = p.getChildrenUnmodifiable();
+        if (children != null) {
+            for (int i=0; i<children.size(); i++) {
+                String com = children.get(i).getClass().getSimpleName();      // コンポーネント名
+                Element Comp = document.createElement(com);
+                Comp.setAttribute("ID", String.valueOf(cnt));
+                comList.put(cnt, children.get(i));
+                cnt++;
+                addText(Comp, children.get(i));
+                cp.appendChild(Comp);
+                Node node = children.get(i);
+                if (node instanceof Pane) {     //レイアウトペイン判定
+                    PaneHantei((Node)node, Comp);
+                    getCom(Comp, (Parent) node);
+                }
+            } 
+        }
+    }
+    
+    //XML書き込みメソッド
     boolean write(File file, Document document) {
-
         // Transformerインスタンスの生成
         Transformer transformer;
         try {
@@ -160,11 +114,11 @@ public class XMLTester extends Application {
         } catch (TransformerConfigurationException e) {
             return false;
         }
-
+        
         // Transformerの設定
         transformer.setOutputProperty("indent", "yes"); //改行指定
         transformer.setOutputProperty("encoding", "UTF-8"); // エンコーディング
-
+        
         // XMLファイルの作成
         try {
             transformer.transform(new DOMSource(document), new StreamResult(file));
@@ -174,7 +128,36 @@ public class XMLTester extends Application {
         return true;
     }
     
-    void StaticTest() throws Exception { 
+    //Posデータ追加メソッド
+    void PaneHantei(Node r, Element el) {
+        if(r instanceof VBox) {
+            VBox pane = (VBox) r;
+            el.setAttribute("Pos", pane.getAlignment().toString());       //Pos配置
+        }
+        else if(r instanceof HBox) {
+            HBox pane = (HBox) r;
+            el.setAttribute("Pos", pane.getAlignment().toString());
+        }
+    }
+    
+    //テキスト追加メソッド
+    void addText(Element el, Node node) {
+        if (node instanceof TextField) {
+            TextField tf = (TextField) node;
+            el.appendChild(document.createTextNode(tf.getText()));
+        }
+        else if(node instanceof ComboBox) {
+            ComboBox cb = (ComboBox) node;
+            el.appendChild(document.createTextNode(cb.getItems().toString()));
+        }
+        else {
+            String[] st = node.toString().split("'");
+            if (st.length == 2)
+                el.appendChild(document.createTextNode((st[1]))); 
+        }
+    }
+    
+     void StaticTest() throws Exception { 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         
@@ -184,7 +167,7 @@ public class XMLTester extends Application {
         File TesterFile = chooser.showOpenDialog(null);
         
         Document Tester = builder.parse(TesterFile);
-        kadai = builder.parse("kadai.xml");
+        Document kadai = builder.parse("kadai.xml");
         
         int point = 0;
         Element TesterRoot = Tester.getDocumentElement();       //Scene
@@ -202,7 +185,7 @@ public class XMLTester extends Application {
         //コンポーネント
         NodeList TesterNodeList2 = TesterElement.getChildNodes();
         NodeList kadaiNodeList2 = kadaiElement.getChildNodes();
-        int cnt = 0;
+        cnt = 0;
         for(int i=0; i<kadaiNodeList2.getLength(); i++) {
             org.w3c.dom.Node TesterNode2 = TesterNodeList2.item(i);
             org.w3c.dom.Node kadaiNode2 = kadaiNodeList2.item(i);
@@ -242,8 +225,8 @@ public class XMLTester extends Application {
             }
         }
     }
-    
-    void DynamicTest() throws Exception {
+     
+     void DynamicTest() throws Exception {
         for(int key : comList.keySet()) {
             if(comList.get(key) instanceof ButtonBase) {
                 ButtonBase bb = (ButtonBase) comList.get(key);
@@ -260,30 +243,9 @@ public class XMLTester extends Application {
                 System.out.println("出力：" + tic.getText());
             }
         }
+        Scene s = primaryStage.getScene();
     }
-    
-    ObservableList<Node> PaneHantei(Node element0) {
-        if(element0.getClass().getSimpleName().endsWith("VBox")) {
-            VBox pane = (VBox) element0;
-            Box.setAttribute("Pos", pane.getAlignment().toString());       //Pos配置
-            ol = pane.getChildren();
-        }
-        else if(element0.getClass().getSimpleName().endsWith("HBox")) {
-            HBox pane = (HBox) element0;
-            Box.setAttribute("Pos", pane.getAlignment().toString());
-            ol = pane.getChildren();
-        }
-        else if(element0.getClass().getSimpleName().endsWith("BorderPane")) {
-            BorderPane pane = (BorderPane) element0;
-            ol = pane.getChildren();
-        }
-        else if(element0.getClass().getSimpleName().endsWith("GridPane")) {
-            GridPane pane = (GridPane) element0;
-            ol = pane.getChildren();
-        }
-        return ol;
-    }  
-    
+     
     public static void main(String[] args) {
         Application.launch(args);
     }
