@@ -43,18 +43,22 @@ public class XMLTester extends Application {
         //ここに採点するクラス名を入力
         TicketCalculator app = new TicketCalculator();
         app.start(primaryStage);
-        getNodeList();
+        //シーン
+        Scene scene1 = primaryStage.getScene();      // Scene
+        getNodeList(scene1);
         
         // XMLファイルの作成
-        File file = new File("Kadai.xml");
+        File file = new File("Kadai1.xml");
         write(file, document);
-        
-        StaticTest();
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document kadai1 = builder.parse("kadai1.xml");
+        StaticTest(kadai1);
         DynamicTest();
         //primaryStage.close();
     }
     
-    void getNodeList() throws Exception {
+    void getNodeList(Scene scene) throws Exception {
         comList = new LinkedHashMap<>();        //IDとノード格納
         
         // Documentインスタンスの生成
@@ -62,14 +66,13 @@ public class XMLTester extends Application {
         documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         document = documentBuilder.newDocument();
         
-        //シーン
-        Scene scene1 = primaryStage.getScene();      // Scene
-        Element scene = document.createElement("Scene");
-        scene.setAttribute("ID", "0");
-        document.appendChild(scene);
+        
+        Element sceneElement = document.createElement("Scene");
+        sceneElement.setAttribute("ID", "0");
+        document.appendChild(sceneElement);
         
         //レイアウトペイン
-        Parent root = scene1.getRoot();
+        Parent root = scene.getRoot();
         String nodeType = root.getClass().getSimpleName();
         Element Box = document.createElement(nodeType);
         Box.setAttribute("ID", "1");
@@ -78,9 +81,7 @@ public class XMLTester extends Application {
         
         //コンポーネント
         getCom(Box, root);
-        scene.appendChild(Box);
-        
-        
+        sceneElement.appendChild(Box);
     }
     
     //コンポーネント読み込みメソッド
@@ -148,7 +149,8 @@ public class XMLTester extends Application {
         }
         else if(node instanceof ComboBox) {
             ComboBox cb = (ComboBox) node;
-            el.appendChild(document.createTextNode(cb.getItems().toString()));
+            if(cb.getValue() != null)
+                el.appendChild(document.createTextNode(cb.getValue().toString()));
         }
         else {
             String[] st = node.toString().split("'");
@@ -157,7 +159,7 @@ public class XMLTester extends Application {
         }
     }
     
-     void StaticTest() throws Exception { 
+     void StaticTest(Document kadai) throws Exception { 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         
@@ -167,7 +169,7 @@ public class XMLTester extends Application {
         File TesterFile = chooser.showOpenDialog(null);
         
         Document Tester = builder.parse(TesterFile);
-        Document kadai = builder.parse("kadai.xml");
+        
         
         int point = 0;
         Element TesterRoot = Tester.getDocumentElement();       //Scene
@@ -243,7 +245,15 @@ public class XMLTester extends Application {
                 System.out.println("出力：" + tic.getText());
             }
         }
-        Scene s = primaryStage.getScene();
+        Scene scene1 = primaryStage.getScene();
+        getNodeList(scene1);
+        // XMLファイルの作成
+        File file = new File("Kadai2.xml");
+        write(file, document);
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document kadai2 = builder.parse("kadai2.xml");
+        StaticTest(kadai2);
     }
      
     public static void main(String[] args) {
