@@ -170,7 +170,6 @@ public class XMLTester extends Application {
         
         Document Tester = builder.parse(TesterFile);
         
-        
         int point = 0;
         Element TesterRoot = Tester.getDocumentElement();       //Scene
         Element kadaiRoot = kadai.getDocumentElement();       //Scene
