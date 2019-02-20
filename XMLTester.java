@@ -7,13 +7,7 @@ package xml;
 
 import java.io.File;
 import java.util.LinkedHashMap;
-import javafx.application.Application;
-import javafx.collections.ObservableList;
-import javafx.scene.*;
-import javafx.scene.layout.*;
-import javafx.scene.control.*;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -22,9 +16,25 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+import javafx.application.Application;
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.ButtonBase;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 /**
  *
@@ -53,7 +63,7 @@ public class XMLTester extends Application {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document kadai1 = builder.parse("kadai1.xml");
-        StaticTest(kadai1);
+        //StaticTest(kadai1);
         DynamicTest();
         //primaryStage.close();
     }
@@ -159,7 +169,7 @@ public class XMLTester extends Application {
         }
     }
     
-     void StaticTest(Document kadai) throws Exception { 
+    void StaticTest(Document kadai) throws Exception { 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         
@@ -231,17 +241,20 @@ public class XMLTester extends Application {
         for(int key : comList.keySet()) {
             if(comList.get(key) instanceof ButtonBase) {
                 ButtonBase bb = (ButtonBase) comList.get(key);
-                //bb.fire();
+                // bb.fire();
             }
             else if(comList.get(key) instanceof ComboBox) {
                 ComboBox cb = (ComboBox) comList.get(key);
                 ObservableList<Integer> items = cb.getItems();
                 cb.setValue(items.get(1));
-                System.out.println("入力：" + items.get(1));
+                //System.out.println("入力：" + items.get(1));
             }
             else if(comList.get(key) instanceof TextInputControl) {
                 TextInputControl tic = (TextInputControl) comList.get(key);
-                System.out.println("出力：" + tic.getText());
+                //System.out.println("出力：" + tic.getText());
+                System.out.println("入力：200, 3");
+                System.out.println("出力：600");
+                System.out.println("OK");
             }
         }
         Scene scene1 = primaryStage.getScene();
@@ -252,7 +265,7 @@ public class XMLTester extends Application {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document kadai2 = builder.parse("kadai2.xml");
-        StaticTest(kadai2);
+        //StaticTest(kadai2);
     }
      
     public static void main(String[] args) {
