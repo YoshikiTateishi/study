@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package xml;
+
 
 import java.io.File;
 
@@ -39,13 +39,14 @@ public class MakeStaticXML extends Application {
     
     Stage primaryStage;
     Document document;
+    ModelAnswer app;
     int cnt = 2;
             
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         //ここに採点するクラス名を入力
-        TicketCalculator app = new TicketCalculator();
+        app = new ModelAnswer();
         app.start(primaryStage);
         getNodeList();
         // XMLファイルの作成

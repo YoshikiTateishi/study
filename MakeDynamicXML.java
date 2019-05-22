@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package xml;
+
 
 import java.io.File;
 
@@ -39,10 +39,11 @@ public class MakeDynamicXML extends Application {
     
     Stage primaryStage;
     Document document;
+    ModelAnswer app;
     int cnt = 2;
     
     public void menu(Stage myStage) {
-    	TicketCalculator app = new TicketCalculator();
+    	app = new ModelAnswer();
     	app.start(primaryStage);
     	
     }
@@ -51,7 +52,8 @@ public class MakeDynamicXML extends Application {
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         //ここに採点するクラス名を入力
-        TicketCalculator app = new TicketCalculator();
+        ModelAnswer app;
+        app = new ModelAnswer();
         app.start(primaryStage);
         getNodeList();
         // XMLファイルの作成
@@ -61,6 +63,7 @@ public class MakeDynamicXML extends Application {
         System.out.println("XMLを作成しました。");
     }
     
+    //ノードリスト取得メソッド
     void getNodeList() throws Exception {
         // Documentインスタンスの生成
         DocumentBuilder documentBuilder;

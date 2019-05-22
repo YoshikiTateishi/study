@@ -3,7 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package xml;
+
+
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -33,7 +34,6 @@ import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 /**
@@ -42,6 +42,8 @@ import javafx.stage.Stage;
  */
 public class XMLTester extends Application {
     
+	ModelAnswer app;
+	String appName = "CountDownApp";
     Stage primaryStage;
     Document document;
     int cnt = 2;
@@ -51,7 +53,7 @@ public class XMLTester extends Application {
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         //ここに採点するクラス名を入力
-        TicketCalculator app = new TicketCalculator();
+        app = new ModelAnswer();
         app.start(primaryStage);
         //シーン
         Scene scene1 = primaryStage.getScene();      // Scene
@@ -63,9 +65,12 @@ public class XMLTester extends Application {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document kadai1 = builder.parse("kadai1.xml");
-        //StaticTest(kadai1);
-        DynamicTest();
-        //primaryStage.close();
+        System.out.println("静的テスト開始");
+        StaticTest(kadai1);
+        System.out.println("静的テスト：成功");
+        //System.out.println("動的テスト開始");
+        //DynamicTest();
+        primaryStage.close();
     }
     
     void getNodeList(Scene scene) throws Exception {
@@ -172,27 +177,29 @@ public class XMLTester extends Application {
     void StaticTest(Document kadai) throws Exception { 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("XMLファイルを選択");
-        chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("XML files", "*.xml*"));
-        File TesterFile = chooser.showOpenDialog(null);
-        
+        File TesterFile = new File("StaticTester.xml");
         Document Tester = builder.parse(TesterFile);
         
         int point = 0;
+        int pointMax = 0;
         Element TesterRoot = Tester.getDocumentElement();       //Scene
         Element kadaiRoot = kadai.getDocumentElement();       //Scene
-        if(TesterRoot.getNodeName().endsWith(kadaiRoot.getNodeName()))
+        pointMax++;
+        if(TesterRoot.getNodeName().endsWith(kadaiRoot.getNodeName())) {
             System.out.println(TesterRoot.getNodeName() + "：OK");
+            point++;
+        }
         NodeList TesterNodeList = TesterRoot.getChildNodes();
         NodeList kadaiNodeList = kadaiRoot.getChildNodes();
         org.w3c.dom.Node TesterNode = TesterNodeList.item(1);
         org.w3c.dom.Node kadaiNode = kadaiNodeList.item(1);
         Element TesterElement = (Element)TesterNode;        //VBox
         Element kadaiElement = (Element)kadaiNode;        //VBox
-        if(TesterElement.getNodeName().endsWith(kadaiElement.getNodeName()))
+        pointMax++;
+        if(TesterElement.getNodeName().endsWith(kadaiElement.getNodeName())) {
             System.out.println(TesterElement.getNodeName() + "：OK");
+            point++;
+        }
         //コンポーネント
         NodeList TesterNodeList2 = TesterElement.getChildNodes();
         NodeList kadaiNodeList2 = kadaiElement.getChildNodes();
@@ -203,8 +210,11 @@ public class XMLTester extends Application {
             if(TesterNode2.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE && kadaiNode2.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
                 Element TesterElement2 = (Element) TesterNode2;
                 Element kadaiElement2 = (Element) kadaiNode2;
-                if(TesterElement2.getNodeName().endsWith(kadaiElement2.getNodeName()))
+                pointMax++;
+                if(TesterElement2.getNodeName().endsWith(kadaiElement2.getNodeName())) {
                     System.out.println(TesterElement2.getNodeName() + "：OK");
+                    point++;
+                }
                 if(TesterElement2.getNodeName().endsWith("HBox")) {
                     NodeList TesterNodeList3 = TesterElement2.getChildNodes();
                     NodeList kadaiNodeList3 = kadaiElement2.getChildNodes();
@@ -214,8 +224,11 @@ public class XMLTester extends Application {
                         if(TesterNode3.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE && kadaiNode3.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
                             Element TesterElement3 = (Element) TesterNode3;
                             Element kadaiElement3 = (Element) kadaiNode3;
-                            if(TesterElement3.getNodeName().endsWith(kadaiElement3.getNodeName()))
+                            pointMax++;
+                            if(TesterElement3.getNodeName().endsWith(kadaiElement3.getNodeName())) {
                                 System.out.println(TesterElement3.getNodeName() + "：OK");
+                                point++;
+                            }
                             if(TesterElement3.getNodeName().endsWith("FlowPane")) {
                                 NodeList TesterNodeList4 = TesterElement3.getChildNodes();
                                 NodeList kadaiNodeList4 = kadaiElement3.getChildNodes();
@@ -225,8 +238,11 @@ public class XMLTester extends Application {
                                     if(TesterNode4.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE && kadaiNode4.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
                                         Element TesterElement4 = (Element) TesterNode4;
                                         Element kadaiElement4 = (Element) kadaiNode4;
-                                        if(TesterElement4.getNodeName().endsWith(kadaiElement4.getNodeName()))
+                                        pointMax++;
+                                        if(TesterElement4.getNodeName().endsWith(kadaiElement4.getNodeName())) {
                                             System.out.println(TesterElement4.getNodeName() + "：OK");
+                                            point++;
+                                        }
                                     }
                                 }
                             }
@@ -235,6 +251,8 @@ public class XMLTester extends Application {
                 }
             }
         }
+        System.out.println(String.format("【実行対象:%s, 学籍番号:%s, 学生氏名:%s, 評点:%d】",
+        		appName, app.gakuban, app.yourname, 10 * point / pointMax));
     }
      
      void DynamicTest() throws Exception {
@@ -247,14 +265,11 @@ public class XMLTester extends Application {
                 ComboBox cb = (ComboBox) comList.get(key);
                 ObservableList<Integer> items = cb.getItems();
                 cb.setValue(items.get(1));
-                //System.out.println("入力：" + items.get(1));
+                System.out.println("入力：" + items.get(1));
             }
             else if(comList.get(key) instanceof TextInputControl) {
                 TextInputControl tic = (TextInputControl) comList.get(key);
-                //System.out.println("出力：" + tic.getText());
-                System.out.println("入力：200, 3");
-                System.out.println("出力：600");
-                System.out.println("OK");
+                System.out.println("出力：" + tic.getText());
             }
         }
         Scene scene1 = primaryStage.getScene();
