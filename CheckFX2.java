@@ -12,8 +12,8 @@ import java.util.concurrent.TimeUnit;
 public class CheckFX2 {
 
     static String pathSrc = "OOP2019";
-    static String testee = "SplitBillApp.java";
-    static String tester = "XMLTester.java";
+    static String testee = "PokemonReaderApp.java";
+    static String tester = "PokemonReaderAppTester1.java";
     static String pathWork = "OOPwork";
 
     public static void main(String[] args) throws Exception {
@@ -93,7 +93,7 @@ public class CheckFX2 {
             pb2.redirectErrorStream(true);
             pb2.command(java);
             Process p2 = pb2.start();
-            boolean ontime = p2.waitFor(30, TimeUnit.SECONDS);
+            boolean ontime = p2.waitFor(5, TimeUnit.SECONDS);
             if (!ontime) {
                 System.out.println("  - Timeout in thread \"main\"");
                 p2.destroy();

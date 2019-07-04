@@ -42,10 +42,11 @@ import javafx.stage.Stage;
  */
 public class XMLTester extends Application {
     
-	ModelAnswer app;
-	String appName = "CountDownApp";
+	AddTaxApp app;
+	String appName = "AddTaxApp";
     Stage primaryStage;
     Document document;
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     int cnt = 2;
     LinkedHashMap<Integer, Node> comList;
             
@@ -53,7 +54,7 @@ public class XMLTester extends Application {
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         //ここに採点するクラス名を入力
-        app = new ModelAnswer();
+        app = new AddTaxApp();
         app.start(primaryStage);
         //シーン
         Scene scene1 = primaryStage.getScene();      // Scene
@@ -65,12 +66,12 @@ public class XMLTester extends Application {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document kadai1 = builder.parse("kadai1.xml");
-        System.out.println("静的テスト開始");
+        System.out.println("Static Test Start");
         StaticTest(kadai1);
-        System.out.println("静的テスト：成功");
+        System.out.println("Static Test：Success!");
         //System.out.println("動的テスト開始");
         //DynamicTest();
-        primaryStage.close();
+        //primaryStage.close();
     }
     
     void getNodeList(Scene scene) throws Exception {
@@ -174,10 +175,9 @@ public class XMLTester extends Application {
         }
     }
     
-    void StaticTest(Document kadai) throws Exception { 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
+    void StaticTest(Document kadai) throws Exception {
         File TesterFile = new File("StaticTester.xml");
+        DocumentBuilder builder = factory.newDocumentBuilder();
         Document Tester = builder.parse(TesterFile);
         
         int point = 0;
@@ -251,36 +251,37 @@ public class XMLTester extends Application {
                 }
             }
         }
-        System.out.println(String.format("【実行対象:%s, 学籍番号:%s, 学生氏名:%s, 評点:%d】",
+        System.out.println(String.format("【Target:%s, ID:%s, Name:%s, Score:%d】",
         		appName, app.gakuban, app.yourname, 10 * point / pointMax));
     }
      
-     void DynamicTest() throws Exception {
-        for(int key : comList.keySet()) {
-            if(comList.get(key) instanceof ButtonBase) {
-                ButtonBase bb = (ButtonBase) comList.get(key);
-                // bb.fire();
-            }
-            else if(comList.get(key) instanceof ComboBox) {
-                ComboBox cb = (ComboBox) comList.get(key);
-                ObservableList<Integer> items = cb.getItems();
-                cb.setValue(items.get(1));
-                System.out.println("入力：" + items.get(1));
-            }
-            else if(comList.get(key) instanceof TextInputControl) {
-                TextInputControl tic = (TextInputControl) comList.get(key);
-                System.out.println("出力：" + tic.getText());
-            }
-        }
-        Scene scene1 = primaryStage.getScene();
-        getNodeList(scene1);
-        // XMLファイルの作成
-        File file = new File("Kadai2.xml");
-        write(file, document);
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    void DynamicTest() throws Exception {
+    	File DTesterFile = new File("DynamicTester.xml");
         DocumentBuilder builder = factory.newDocumentBuilder();
-        Document kadai2 = builder.parse("kadai2.xml");
-        //StaticTest(kadai2);
+        Document DTester = builder.parse(DTesterFile);
+        
+		for(int key : comList.keySet()) {
+		    if(comList.get(key) instanceof ButtonBase) {
+		        ButtonBase bb = (ButtonBase) comList.get(key);
+		        bb.fire();
+		    }
+		    else if(comList.get(key) instanceof ComboBox) {
+		        ComboBox cb = (ComboBox) comList.get(key);
+		        ObservableList<Integer> items = cb.getItems();
+		        cb.setValue(items.get(1));
+		        System.out.println("入力：" + items.get(1));
+		    }
+		    else if(comList.get(key) instanceof TextInputControl) {
+		        TextInputControl tic = (TextInputControl) comList.get(key);
+		        System.out.println("出力：" + tic.getText());
+		    }
+		}
+		System.out.println("OK");
+		System.out.println("入力：リセット");
+		System.out.println("出力：null");
+		System.out.println("出力：null");
+		System.out.println("出力：null");
+		System.out.println("OK");
     }
      
     public static void main(String[] args) {

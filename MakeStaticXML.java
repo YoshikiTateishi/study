@@ -39,14 +39,14 @@ public class MakeStaticXML extends Application {
     
     Stage primaryStage;
     Document document;
-    ModelAnswer app;
+    AddTaxApp app;
     int cnt = 2;
             
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         //ここに採点するクラス名を入力
-        app = new ModelAnswer();
+        app = new AddTaxApp();
         app.start(primaryStage);
         getNodeList();
         // XMLファイルの作成
@@ -150,7 +150,8 @@ public class MakeStaticXML extends Application {
     void addText(Element el, Node node) {
         if (node instanceof TextField) {
             TextField tf = (TextField) node;
-            el.appendChild(document.createTextNode(tf.getText()));
+            if(tf.isDisable())
+            	el.appendChild(document.createTextNode(tf.getText()));
         }
         else if(node instanceof ComboBox) {
             ComboBox cb = (ComboBox) node;
