@@ -1,4 +1,4 @@
-
+import java.io.File;
 import java.util.LinkedHashMap;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -6,57 +6,74 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import javafx.application.Application;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-
+/**
+ *
+ * @author yoshi
+ */
 public class FXTester extends Application {
-	
-	TicketCalculator app;
-	String appName = "TicketCalculator";
-    Stage primaryStage;
+    
+	CheckSIDApp app;
+	String appName = "CheckSIDApp";
     Document document;
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     int cnt = 2;
     LinkedHashMap<Integer, Node> comList;
-    
+            
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        this.primaryStage = primaryStage;
-        //ここに採点するクラス名を入力
-        app = new TicketCalculator();
-        app.start(primaryStage);
-        getNodeList();
+    public void start(Stage primaryStage) {
+    	System.out.println("静的テスト開始");
+    	try {
+    		//ここに採点するクラス名を入力
+            app = new CheckSIDApp();
+            app.start(primaryStage);
+            System.out.println("起動：成功");
+            //模範解答XML読み込み
+            File TesterFile = new File("StaticTester.xml");
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document Tester = builder.parse(TesterFile);
+            //Scene
+            Element TesterScene = Tester.getDocumentElement();
+            
+            Scene TesteeScene = primaryStage.getScene();
+            //RootNode
+            Element TesterRoot = (Element) TesterScene.getChildNodes().item(1);
+            String RootPos = TesterRoot.getAttribute("Alignment");
+            
+            String TesteeRoot = TesteeScene.getRoot().getClass().getSimpleName();
+            
+            if(TesterRoot.getNodeName().equals(TesteeRoot)) {
+            	System.out.println(TesterRoot.getNodeName() + "：OK");
+            }
+            else {
+            	System.out.println(TesterRoot.getNodeName() + "：NG");
+            	System.out.println(TesteeRoot + "ではありません");
+            }
+            
+            //getCom(TesterRoot);
+            
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    	primaryStage.close();
     }
     
-    //シーン、レイアウトペイン取得メソッド
-    void getNodeList() throws Exception {
-        // Documentインスタンスの生成
-        DocumentBuilder documentBuilder;
-        documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        document = documentBuilder.newDocument();
-        //シーン
-        Scene scene1 = primaryStage.getScene();      // Scene
-        Element scene = document.createElement("Scene");
-        scene.setAttribute("ID", "0");
-        document.appendChild(scene);
-        //レイアウトペイン
-        Parent root = scene1.getRoot();
-        String nodeType = root.getClass().getSimpleName();
-        Element Box = document.createElement(nodeType);
-        Box.setAttribute("ID", "1");
-        //PaneHantei((Node) root, Box);    //POSデータ判定、書き込み
-        //コンポーネント
-        //getCom(Box, root);
-        scene.appendChild(Box);
+    void getCom(Element tr) {
+    	NodeList ComList = tr.getChildNodes();
+    	for(int i=0; i<ComList.getLength(); i++) {
+    		if(ComList.item(i).getNodeType() == org.w3c.dom.Node.ELEMENT_NODE)
+    			System.out.println(ComList.item(i));
+    	}
     }
-
-	public static void main(String[] args) {
-		// TODO 自動生成されたメソッド・スタブ
-		Application.launch(args);
-	}
-
+    
+    public static void main(String[] args) {
+        Application.launch(args);
+    }
 }
+
