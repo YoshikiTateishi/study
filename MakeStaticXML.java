@@ -39,14 +39,15 @@ public class MakeStaticXML extends Application {
     
     Stage primaryStage;
     Document document;
-    AddTaxApp app;
+    SplitBillApp app;
     int cnt = 2;
+    int pointMax = 0;
             
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         //ここに採点するクラス名を入力
-        app = new AddTaxApp();
+        app = new SplitBillApp();
         app.start(primaryStage);
         getNodeList();
         // XMLファイルの作成
@@ -67,6 +68,7 @@ public class MakeStaticXML extends Application {
         Element scene = document.createElement("Scene");
         scene.setAttribute("ID", "0");
         document.appendChild(scene);
+        pointMax++;
         //レイアウトペイン
         Parent root = scene1.getRoot();
         String nodeType = root.getClass().getSimpleName();
@@ -76,6 +78,8 @@ public class MakeStaticXML extends Application {
         //コンポーネント
         getCom(Box, root);
         scene.appendChild(Box);
+        pointMax++;
+        scene.setAttribute("ScoreMax", String.valueOf(pointMax));
     }
     
     //コンポーネント読み込みメソッド
@@ -108,6 +112,7 @@ public class MakeStaticXML extends Application {
                     PaneHantei((Node)node, Comp);
                     getCom(Comp, (Parent) node);
                 }
+                pointMax++;
             } 
         }
     }
@@ -134,15 +139,17 @@ public class MakeStaticXML extends Application {
         return true;
     }
     
-    //Posデータ追加メソッド
+    //Alignment追加メソッド
     void PaneHantei(Node r, Element el) {
         if(r instanceof VBox) {
             VBox pane = (VBox) r;
-            el.setAttribute("Pos", pane.getAlignment().toString());       //Pos配置
+            el.setAttribute("Alignment", pane.getAlignment().toString());       //Pos配置
+            pointMax++;
         }
         else if(r instanceof HBox) {
             HBox pane = (HBox) r;
-            el.setAttribute("Pos", pane.getAlignment().toString());
+            el.setAttribute("Alignment", pane.getAlignment().toString());
+            pointMax++;
         }
     }
     

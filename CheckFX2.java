@@ -12,8 +12,8 @@ import java.util.concurrent.TimeUnit;
 public class CheckFX2 {
 
     static String pathSrc = "OOP2019";
-    static String testee = "PokemonReaderApp.java";
-    static String tester = "PokemonReaderAppTester1.java";
+    static String testee = "SplitBillApp.java";
+    static String tester = "FXTester.java";
     static String pathWork = "OOPwork";
 
     public static void main(String[] args) throws Exception {
