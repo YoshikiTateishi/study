@@ -163,13 +163,22 @@ public class MakeStaticXML extends Application {
     //採点項目選択メソッド
     void SelectCom() {
     	//stage2 = new Stage();
-    	TreeView tree = new TreeView(pane);  
+    	TreeView tree = new TreeView(pane);
         tree.setEditable(true);
         tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
         //tree.setRoot(pane);
         tree.setShowRoot(true);
         Button button = new Button("作成する");
-        button.setOnAction(e -> {
+        button.setOnAction(e -> Items());
+        
+        VBox root = new VBox(tree, button);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(10));
+        stage1.setScene(new Scene(root, 300, 250));
+        stage1.show();
+    }
+    
+    void Items() {
         	// XMLファイルの作成
             File file = new File("StaticTester.xml");
             write(file, document);
@@ -181,12 +190,6 @@ public class MakeStaticXML extends Application {
             stage1.setScene(scene);
             stage1.show();
             System.out.println("XMLを作成しました。");
-        });
-        VBox root = new VBox(tree, button);
-        root.setAlignment(Pos.CENTER);
-        root.setPadding(new Insets(10));
-        stage1.setScene(new Scene(root, 300, 250));
-        stage1.show();
     }
     
     //XML書き込みメソッド
