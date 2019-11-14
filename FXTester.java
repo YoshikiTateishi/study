@@ -27,6 +27,7 @@ import javafx.stage.Stage;
  */
 public class FXTester extends Application {
 	String appName = "SplitBillApp";
+	SplitBillApp app;
     Document document;
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     int cnt = 2;
@@ -34,25 +35,25 @@ public class FXTester extends Application {
     int pointMax = 0;		//満点
     int dpoint = 0;		//動的テストの点数
     LinkedHashMap<Integer, Node> comList;		//学生のコンポーネント格納
-            
+    
+    
+    
+    
     @Override
     public void start(Stage primaryStage) {
 		//ここに採点するクラス名を入力
-    	SplitBillApp app = new SplitBillApp();
+    	app = new SplitBillApp();
         app.start(primaryStage);
         
         System.out.println("静的テスト開始");
         StaticTest(primaryStage);
     	if (point == pointMax) {
     		System.out.println("静的テスト成功");
-    		System.out.println("動的テスト開始");
     		//DynamicTest();
     	}
     	else
     		System.out.println("静的テスト失敗");
-    	
-    	System.out.println(String.format("【実行対象:%s, 学籍番号:%s, 名前:%s, 点数:%d】", 
-    			appName, app.gakuban, app.yourname, (10 * point / pointMax) + dpoint));
+    	printScore();
     	primaryStage.close();
     }
     
@@ -160,7 +161,8 @@ public class FXTester extends Application {
     
     
     void DynamicTest() {
-    	for(int testcase=1; testcase<10; testcase++) {
+    	System.out.println("動的テスト開始");
+    	for(int testcase=1; testcase<5; testcase++) {
 	    	try {
 	    		File TesterFile = new File("DynamicTester" + testcase + ".xml");
 	        	DocumentBuilder builder = factory.newDocumentBuilder();
@@ -243,6 +245,11 @@ public class FXTester extends Application {
 			System.out.println(TesteeOut + "ではありません。");
 			return false;
 		}
+    }
+    
+    void printScore() {
+    	System.out.println(String.format("【実行対象:%s, 学籍番号:%s, 名前:%s, 点数:%d】", 
+    			appName, app.gakuban, app.yourname, (10 * point / pointMax) + dpoint));
     }
     
     public static void main(String[] args) {

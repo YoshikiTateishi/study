@@ -12,11 +12,13 @@ import java.util.concurrent.TimeUnit;
 public class CheckFX2 {
 
     static String pathSrc = "OOP2019";
-    static String testee = "SplitBillApp.java";
+    static String testee = "CheckSIDApp.java";
     static String tester = "FXTester.java";
     static String pathWork = "OOPwork";
 
     public static void main(String[] args) throws Exception {
+    	long startTime = System.currentTimeMillis();
+    	System.out.println("計測開始");
         String[] javac = {"javac", "-encoding", "UTF-8",
             "-classpath", pathWork, "Ex001.java"};
         String[] java = {"java", "-classpath", pathWork, "Ex001"};
@@ -108,5 +110,7 @@ public class CheckFX2 {
                 }
             }
         }
+        long endTime = System.currentTimeMillis();
+        System.out.println("処理時間：" + (endTime-startTime) + "ms");
     }
 }
