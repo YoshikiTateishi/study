@@ -47,9 +47,10 @@ public class MakeStaticXML extends Application {
     Stage stage1, stage2, primaryStage;
     Document document;
     CheckBoxTreeItem<String> pane, PaneBox, ComBox;
-    CheckBoxTreeItem<String>[] cbtest;
+    CheckBoxTreeItem<String>[] cbtest = new CheckBoxTreeItem[100];
     SplitBillApp app;
     int cnt = 2;
+    int ct = 1;
     int pointMax = 0;
     
     @Override
@@ -102,6 +103,7 @@ public class MakeStaticXML extends Application {
         Box.setAttribute("ID", "1");
         
         pane = new CheckBoxTreeItem<String>(nodeType);
+        cbtest[0] = pane;
         pane.setExpanded(true);
         //pane.setIndependent(true);
         
@@ -116,36 +118,42 @@ public class MakeStaticXML extends Application {
     //コンポーネント読み込みメソッド
     void getCom(Element cp, Parent p, CheckBoxTreeItem<String> cbti) {
     	ObservableList<Node> children = p.getChildrenUnmodifiable();
-    	CheckBoxTreeItem<String> cbtest[] = new CheckBoxTreeItem<String>[children.size()];
         if (children != null) {
+        	//cbtest = new CheckBoxTreeItem[100];
             for (int i=0; i<children.size(); i++) {
                 String com = children.get(i).getClass().getSimpleName();      // コンポーネント名
                 Element Comp = document.createElement(com);
                 Comp.setAttribute("ID", String.valueOf(cnt));
                 ComBox = new CheckBoxTreeItem<String>(com);
-                cbtest[1] = new CheckBoxTreeItem<String>(com);
+                cbtest[ct] = ComBox;
+                //System.out.println(cbtest[ct]);
+                ct++;
                 cnt++;
                 //テキスト追加処理
                 if (children.get(i) instanceof TextField) {
                     TextField tf = (TextField) children.get(i);
                     Comp.appendChild(document.createTextNode(tf.getText()));
                     ComBox = new CheckBoxTreeItem<String>(com + " " + tf.getText());
-                    cbtest[i]= new CheckBoxTreeItem<String>(com + " " + tf.getText());
+                    //cbtest[ct] = ComBox;
+                    //System.out.println(cbtest[ct]);
                 }
                 else if(children.get(i) instanceof ComboBox) {
                     ComboBox cb = (ComboBox) children.get(i);
                     Comp.appendChild(document.createTextNode(cb.getItems().toString()));
                     ComBox = new CheckBoxTreeItem<String>(com + " " + cb.getItems().toString());
-                    cbtest[i] = new CheckBoxTreeItem<String>(com + " " + cb.getItems().toString());
+                    //cbtest[ct]= ComBox;
+                    //System.out.println(cbtest[ct]);
                 }
                 else {
                     String[] st = children.get(i).toString().split("'");
                     if (st.length == 2) {
                         Comp.appendChild(document.createTextNode((st[1])));
                         ComBox = new CheckBoxTreeItem<String>(com + " " + st[1]);
-                        cbtest[i] = new CheckBoxTreeItem<String>(com + " " + st[1]);
+                        //cbtest[ct]= ComBox;
+                        //System.out.println(cbtest[ct]);
                     }
                 }
+                
                 //ComBox.setIndependent(true);
                 //addText(Comp, children.get(i))
                 cp.appendChild(Comp);
@@ -169,15 +177,15 @@ public class MakeStaticXML extends Application {
     //採点項目選択メソッド
     void SelectCom() {
     	//stage2 = new Stage();
+    	Label lb = new Label("採点する項目を選択してください");
     	TreeView tree = new TreeView(pane);
         tree.setEditable(true);
         tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
         //tree.setRoot(pane);
         tree.setShowRoot(true);
-        Button button = new Button("作成する");
+        Button button = new Button("XMLを作成する");
         button.setOnAction(e -> Items());
-        
-        VBox root = new VBox(tree, button);
+        VBox root = new VBox(lb, tree, button);
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(10));
         stage1.setScene(new Scene(root, 300, 250));
@@ -185,7 +193,10 @@ public class MakeStaticXML extends Application {
     }
     
     void Items() {
-    	System.out.println(pane.getChildren());
+        for(int i=0; i < cbtest.length; i++) {
+        	if(cbtest[i] != null && cbtest[i].isSelected())
+        		System.out.println(cbtest[i]);
+        }
     	// XMLファイルの作成
         File file = new File("StaticTester.xml");
         write(file, document);
@@ -196,7 +207,6 @@ public class MakeStaticXML extends Application {
         Scene scene = new Scene(vb, 400, 200);
         stage1.setScene(scene);
         stage1.show();
-        System.out.println("XMLを作成しました。");
     }
     
     //XML書き込みメソッド
