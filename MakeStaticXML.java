@@ -46,11 +46,10 @@ public class MakeStaticXML extends Application {
     
     Stage stage1, stage2, primaryStage;
     Document document;
-    CheckBoxTreeItem<String> pane, PaneBox, ComBox;
-    CheckBoxTreeItem<String>[] cbtest = new CheckBoxTreeItem[100];
+    CheckBoxTreeItem<String>[] pane;
+    CheckBoxTreeItem<String> PaneBox;
     SplitBillApp app;
     int cnt = 2;
-    int ct = 1;
     int pointMax = 0;
     
     @Override
@@ -102,75 +101,62 @@ public class MakeStaticXML extends Application {
         Element Box = document.createElement(nodeType);
         Box.setAttribute("ID", "1");
         
-        pane = new CheckBoxTreeItem<String>(nodeType);
-        cbtest[0] = pane;
-        pane.setExpanded(true);
-        //pane.setIndependent(true);
+        pane = new CheckBoxTreeItem[100];
+        pane[0] = new CheckBoxTreeItem<String>("Scene");
+        pane[1] = new CheckBoxTreeItem<String>(nodeType);
+        pane[1].setExpanded(true);		// 初期画面で子ノードを表示させる
+        pane[1].setIndependent(true);		// 子ノードの非依存定義
+        PaneBox = new CheckBoxTreeItem<String>();
+        PaneBox = pane[1];
         
         PaneHantei((Node) root, Box);    //POSデータ判定、書き込み
         //コンポーネント
-        getCom(Box, root, pane);
+        getCom(Box, root, PaneBox);
         scene.appendChild(Box);
         pointMax++;
         scene.setAttribute("ScoreMax", String.valueOf(pointMax));
     }
     
     //コンポーネント読み込みメソッド
-    void getCom(Element cp, Parent p, CheckBoxTreeItem<String> cbti) {
+    void getCom(Element cp, Parent p, CheckBoxTreeItem<String> pb) {
     	ObservableList<Node> children = p.getChildrenUnmodifiable();
         if (children != null) {
-        	//cbtest = new CheckBoxTreeItem[100];
             for (int i=0; i<children.size(); i++) {
                 String com = children.get(i).getClass().getSimpleName();      // コンポーネント名
                 Element Comp = document.createElement(com);
                 Comp.setAttribute("ID", String.valueOf(cnt));
-                ComBox = new CheckBoxTreeItem<String>(com);
-                cbtest[ct] = ComBox;
-                //System.out.println(cbtest[ct]);
-                ct++;
-                cnt++;
+                pane[cnt] = new CheckBoxTreeItem<String>(com);
+                
                 //テキスト追加処理
                 if (children.get(i) instanceof TextField) {
                     TextField tf = (TextField) children.get(i);
                     Comp.appendChild(document.createTextNode(tf.getText()));
-                    ComBox = new CheckBoxTreeItem<String>(com + " " + tf.getText());
-                    //cbtest[ct] = ComBox;
-                    //System.out.println(cbtest[ct]);
+                    pane[cnt] = new CheckBoxTreeItem<String>(com + " " + tf.getText());
                 }
                 else if(children.get(i) instanceof ComboBox) {
                     ComboBox cb = (ComboBox) children.get(i);
                     Comp.appendChild(document.createTextNode(cb.getItems().toString()));
-                    ComBox = new CheckBoxTreeItem<String>(com + " " + cb.getItems().toString());
-                    //cbtest[ct]= ComBox;
-                    //System.out.println(cbtest[ct]);
+                    pane[cnt] = new CheckBoxTreeItem<String>(com + " " + cb.getItems().toString());
                 }
                 else {
                     String[] st = children.get(i).toString().split("'");
                     if (st.length == 2) {
                         Comp.appendChild(document.createTextNode((st[1])));
-                        ComBox = new CheckBoxTreeItem<String>(com + " " + st[1]);
-                        //cbtest[ct]= ComBox;
-                        //System.out.println(cbtest[ct]);
+                        pane[cnt] = new CheckBoxTreeItem<String>(com + " " + st[1]);
                     }
                 }
-                
-                //ComBox.setIndependent(true);
-                //addText(Comp, children.get(i))
                 cp.appendChild(Comp);
-                cbti.getChildren().add(ComBox);
+                pane[cnt].setIndependent(true);
+                pb.getChildren().add(pane[cnt]);
+                cnt++;
                 Node node = children.get(i);
                 if (node instanceof Pane) {     //レイアウトペイン判定
                     PaneHantei((Node)node, Comp);
-                    PaneBox = new CheckBoxTreeItem<String>();
-                    PaneBox.setIndependent(true);
-                    PaneBox = ComBox;
-                    getCom(Comp, (Parent) node, PaneBox);
-                }
-                else {
-                	
+                    pane[cnt-1].setExpanded(true);
+                    getCom(Comp, (Parent) node, pane[cnt-1]);
                 }
                 pointMax++;
-            } 
+            }
         }
     }
     
@@ -178,12 +164,12 @@ public class MakeStaticXML extends Application {
     void SelectCom() {
     	//stage2 = new Stage();
     	Label lb = new Label("採点する項目を選択してください");
-    	TreeView tree = new TreeView(pane);
+    	TreeView tree = new TreeView(PaneBox);
         tree.setEditable(true);
         tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
         //tree.setRoot(pane);
         tree.setShowRoot(true);
-        Button button = new Button("XMLを作成する");
+        Button button = new Button("決定");
         button.setOnAction(e -> Items());
         VBox root = new VBox(lb, tree, button);
         root.setAlignment(Pos.CENTER);
@@ -193,9 +179,9 @@ public class MakeStaticXML extends Application {
     }
     
     void Items() {
-        for(int i=0; i < cbtest.length; i++) {
-        	if(cbtest[i] != null && cbtest[i].isSelected())
-        		System.out.println(cbtest[i]);
+        for(int i=0; i < pane.length; i++) {
+        	if(pane[i] != null && pane[i].isSelected())
+        		System.out.println(pane[i]);
         }
     	// XMLファイルの作成
         File file = new File("StaticTester.xml");
