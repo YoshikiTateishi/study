@@ -46,9 +46,9 @@ public class MakeStaticXML extends Application {
     
     Stage stage1, stage2, primaryStage;
     Document document;
-    CheckBoxTreeItem<String>[] pane;
+    CheckBoxTreeItem<String>[] pane, InputPane, EventPane;
     CheckBoxTreeItem<String> PaneBox;
-    SplitBillApp app;
+    LunchCalcApp app;
     int cnt = 2;
     int pointMax = 0;
     
@@ -74,7 +74,7 @@ public class MakeStaticXML extends Application {
     void startModelAnswer() {
     	primaryStage = new Stage();
     	try {
-    		app = new SplitBillApp();
+    		app = new LunchCalcApp();
             app.start(primaryStage);
             getNodeList();
             SelectCom();
@@ -105,7 +105,8 @@ public class MakeStaticXML extends Application {
         pane[0] = new CheckBoxTreeItem<String>("Scene");
         pane[1] = new CheckBoxTreeItem<String>(nodeType);
         pane[1].setExpanded(true);		// 初期画面で子ノードを表示させる
-        pane[1].setIndependent(true);		// 子ノードの非依存定義
+        //pane[1].setIndependent(true);		// 子ノードの非依存定義
+        pane[1].setSelected(true);
         PaneBox = new CheckBoxTreeItem<String>();
         PaneBox = pane[1];
         
@@ -126,7 +127,6 @@ public class MakeStaticXML extends Application {
                 Element Comp = document.createElement(com);
                 Comp.setAttribute("ID", String.valueOf(cnt));
                 pane[cnt] = new CheckBoxTreeItem<String>(com);
-                
                 //テキスト追加処理
                 if (children.get(i) instanceof TextField) {
                     TextField tf = (TextField) children.get(i);
@@ -146,7 +146,8 @@ public class MakeStaticXML extends Application {
                     }
                 }
                 cp.appendChild(Comp);
-                pane[cnt].setIndependent(true);
+                //pane[cnt].setIndependent(true);
+                pane[cnt].setSelected(true);
                 pb.getChildren().add(pane[cnt]);
                 cnt++;
                 Node node = children.get(i);
@@ -165,6 +166,41 @@ public class MakeStaticXML extends Application {
     	//stage2 = new Stage();
     	Label lb = new Label("採点する項目を選択してください");
     	TreeView tree = new TreeView(PaneBox);
+        tree.setEditable(true);
+        tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
+        //tree.setRoot(pane);
+        tree.setShowRoot(true);
+        Button button = new Button("決定");
+        button.setOnAction(e -> SelectInput());
+        VBox root = new VBox(lb, tree, button);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(10));
+        stage1.setScene(new Scene(root, 300, 250));
+        stage1.show();
+    }
+    
+    void SelectInput() {
+    	Label lb = new Label("入力コンポーネントを選択してください");
+    	InputPane = pane;
+    	TreeView tree = new TreeView(PaneBox);
+    	PaneBox.setSelected(false);
+        tree.setEditable(true);
+        tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
+        //tree.setRoot(pane);
+        tree.setShowRoot(true);
+        Button button = new Button("決定");
+        button.setOnAction(e -> SelectEvent());
+        VBox root = new VBox(lb, tree, button);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(10));
+        stage1.setScene(new Scene(root, 300, 250));
+        stage1.show();
+    }
+    
+    void SelectEvent() {
+    	Label lb = new Label("イベントコンポーネントを選択してください");
+    	TreeView tree = new TreeView(PaneBox);
+    	PaneBox.setSelected(false);
         tree.setEditable(true);
         tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
         //tree.setRoot(pane);
