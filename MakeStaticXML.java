@@ -48,7 +48,7 @@ public class MakeStaticXML extends Application {
     Document document;
     CheckBoxTreeItem<String>[] pane, InputPane, EventPane;
     CheckBoxTreeItem<String> PaneBox;
-    LunchCalcApp app;
+    SplitBillApp app;
     int cnt = 2;
     int pointMax = 0;
     
@@ -66,7 +66,7 @@ public class MakeStaticXML extends Application {
         VBox pane1 = new VBox(60, hbox1, hbox2);
         Scene scene1 = new Scene(pane1, 400, 200);
         stage1.setScene(scene1);
-        stage1.setTitle("静的テスト用XML生成");
+        stage1.setTitle("自動採点用XML生成");
         stage1.show();
     }
     
@@ -74,7 +74,7 @@ public class MakeStaticXML extends Application {
     void startModelAnswer() {
     	primaryStage = new Stage();
     	try {
-    		app = new LunchCalcApp();
+    		app = new SplitBillApp();
             app.start(primaryStage);
             getNodeList();
             SelectCom();
@@ -147,7 +147,7 @@ public class MakeStaticXML extends Application {
                 }
                 cp.appendChild(Comp);
                 //pane[cnt].setIndependent(true);
-                pane[cnt].setSelected(true);
+                //pane[cnt].setSelected(true);
                 pb.getChildren().add(pane[cnt]);
                 cnt++;
                 Node node = children.get(i);
@@ -171,41 +171,6 @@ public class MakeStaticXML extends Application {
         //tree.setRoot(pane);
         tree.setShowRoot(true);
         Button button = new Button("決定");
-        button.setOnAction(e -> SelectInput());
-        VBox root = new VBox(lb, tree, button);
-        root.setAlignment(Pos.CENTER);
-        root.setPadding(new Insets(10));
-        stage1.setScene(new Scene(root, 300, 250));
-        stage1.show();
-    }
-    
-    void SelectInput() {
-    	Label lb = new Label("入力コンポーネントを選択してください");
-    	InputPane = pane;
-    	TreeView tree = new TreeView(PaneBox);
-    	PaneBox.setSelected(false);
-        tree.setEditable(true);
-        tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
-        //tree.setRoot(pane);
-        tree.setShowRoot(true);
-        Button button = new Button("決定");
-        button.setOnAction(e -> SelectEvent());
-        VBox root = new VBox(lb, tree, button);
-        root.setAlignment(Pos.CENTER);
-        root.setPadding(new Insets(10));
-        stage1.setScene(new Scene(root, 300, 250));
-        stage1.show();
-    }
-    
-    void SelectEvent() {
-    	Label lb = new Label("イベントコンポーネントを選択してください");
-    	TreeView tree = new TreeView(PaneBox);
-    	PaneBox.setSelected(false);
-        tree.setEditable(true);
-        tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
-        //tree.setRoot(pane);
-        tree.setShowRoot(true);
-        Button button = new Button("決定");
         button.setOnAction(e -> Items());
         VBox root = new VBox(lb, tree, button);
         root.setAlignment(Pos.CENTER);
@@ -214,6 +179,7 @@ public class MakeStaticXML extends Application {
         stage1.show();
     }
     
+    
     void Items() {
         for(int i=0; i < pane.length; i++) {
         	if(pane[i] != null && pane[i].isSelected())
@@ -221,10 +187,11 @@ public class MakeStaticXML extends Application {
         }
     	// XMLファイルの作成
         File file = new File("StaticTester.xml");
+        //primaryStage.close();
+        Button btn = new Button("キャプチャ");
+        VBox vb = new VBox(btn);
+        btn.setOnAction(e -> startModelAnswer());
         write(file, document);
-        primaryStage.close();
-        Label lb = new Label("XMLを作成しました。");
-        VBox vb = new VBox(lb);
         vb.setAlignment(Pos.CENTER);
         Scene scene = new Scene(vb, 400, 200);
         stage1.setScene(scene);
