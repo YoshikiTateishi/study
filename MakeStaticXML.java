@@ -49,8 +49,9 @@ public class MakeStaticXML extends Application {
     CheckBoxTreeItem<String>[] pane, InputPane, EventPane;
     CheckBoxTreeItem<String> PaneBox;
     SplitBillApp app;
-    int cnt = 2;
-    int pointMax = 0;
+    int cnt;
+    int pointMax;
+    int NameCount;
     
     @Override
     public void start(Stage stage) throws Exception {
@@ -85,6 +86,8 @@ public class MakeStaticXML extends Application {
     
     //シーン、レイアウトペイン取得メソッド
     void getNodeList() throws Exception {
+    	pointMax = 0;
+    	cnt = 2;
         // Documentインスタンスの生成
         DocumentBuilder documentBuilder;
         documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -101,7 +104,7 @@ public class MakeStaticXML extends Application {
         Element Box = document.createElement(nodeType);
         Box.setAttribute("ID", "1");
         
-        pane = new CheckBoxTreeItem[100];
+        pane = new CheckBoxTreeItem[1000];
         pane[0] = new CheckBoxTreeItem<String>("Scene");
         pane[1] = new CheckBoxTreeItem<String>(nodeType);
         pane[1].setExpanded(true);		// 初期画面で子ノードを表示させる
@@ -163,6 +166,9 @@ public class MakeStaticXML extends Application {
     
     //採点項目選択メソッド
     void SelectCom() {
+    	// XMLファイルの作成
+        File file = new File("StaticTester.xml");
+        write(file, document);
     	//stage2 = new Stage();
     	Label lb = new Label("採点する項目を選択してください");
     	TreeView tree = new TreeView(PaneBox);
@@ -185,13 +191,22 @@ public class MakeStaticXML extends Application {
         	if(pane[i] != null && pane[i].isSelected())
         		System.out.println(pane[i]);
         }
-    	// XMLファイルの作成
-        File file = new File("StaticTester.xml");
+     
         //primaryStage.close();
         Button btn = new Button("キャプチャ");
         VBox vb = new VBox(btn);
-        btn.setOnAction(e -> startModelAnswer());
-        write(file, document);
+        NameCount = 1;        
+        btn.setOnAction(e -> {
+			try {
+				getNodeList();
+				File file = new File("TestTester" + NameCount + ".xml");
+		        write(file, document);
+		        NameCount++;
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		});
+        
         vb.setAlignment(Pos.CENTER);
         Scene scene = new Scene(vb, 400, 200);
         stage1.setScene(scene);
