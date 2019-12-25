@@ -30,9 +30,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -48,7 +50,7 @@ public class MakeStaticXML extends Application {
     Document document;
     CheckBoxTreeItem<String>[] pane, InputPane, EventPane;
     CheckBoxTreeItem<String> PaneBox;
-    SplitBillApp app;
+    CountDownApp app;
     int cnt;
     int pointMax;
     int NameCount;
@@ -75,7 +77,7 @@ public class MakeStaticXML extends Application {
     void startModelAnswer() {
     	primaryStage = new Stage();
     	try {
-    		app = new SplitBillApp();
+    		app = new CountDownApp();
             app.start(primaryStage);
             getNodeList();
             SelectCom();
@@ -150,7 +152,7 @@ public class MakeStaticXML extends Application {
                 }
                 cp.appendChild(Comp);
                 //pane[cnt].setIndependent(true);
-                //pane[cnt].setSelected(true);
+                pane[cnt].setSelected(true);
                 pb.getChildren().add(pane[cnt]);
                 cnt++;
                 Node node = children.get(i);
@@ -177,6 +179,31 @@ public class MakeStaticXML extends Application {
         //tree.setRoot(pane);
         tree.setShowRoot(true);
         Button button = new Button("決定");
+        button.setOnAction(e -> SelectEvent());
+        VBox root = new VBox(lb, tree, button);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(10));
+        stage1.setScene(new Scene(root, 300, 250));
+        stage1.show();
+    }
+    
+  //イベント選択メソッド
+    void SelectEvent() {
+    	//チェックボックス選択解除
+        for(int i=0; i < pane.length; i++) {
+        	if(pane[i] != null) {
+        		pane[i].setSelected(false);
+            	pane[i].setIndependent(true);
+        	}
+        }
+    	//stage2 = new Stage();
+    	Label lb = new Label("イベントを選択してください");
+    	TreeView tree = new TreeView(PaneBox);
+        tree.setEditable(true);
+        tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
+        //tree.setRoot(pane);
+        tree.setShowRoot(true);
+        Button button = new Button("決定");
         button.setOnAction(e -> Items());
         VBox root = new VBox(lb, tree, button);
         root.setAlignment(Pos.CENTER);
@@ -185,7 +212,6 @@ public class MakeStaticXML extends Application {
         stage1.show();
     }
     
-    
     void Items() {
         for(int i=0; i < pane.length; i++) {
         	if(pane[i] != null && pane[i].isSelected())
@@ -193,22 +219,63 @@ public class MakeStaticXML extends Application {
         }
      
         //primaryStage.close();
-        Button btn = new Button("キャプチャ");
-        VBox vb = new VBox(btn);
+        Button btn1 = new Button("入力キャプチャ");
+        Button btn2 = new Button("出力キャプチャ");
+        Button btn3 = new Button("イベントの再設定");
+        Button btn4 = new Button("終了する");
+        Label lb = new Label();
+        VBox vb1 = new VBox(20, btn1, btn2, btn3, btn4, lb);
+        vb1.setAlignment(Pos.CENTER);
+        TextArea ta = new TextArea();
+        ta.setEditable(false);
+        VBox vb2 = new VBox(ta);
+        vb2.setAlignment(Pos.CENTER);
+        HBox hb = new HBox(vb1, vb2);
+        hb.setAlignment(Pos.CENTER);
+        BorderPane bp = new BorderPane();
+        bp.setLeft(vb1);
+        bp.setRight(ta);
         NameCount = 1;        
-        btn.setOnAction(e -> {
+        btn1.setOnAction(e -> {
 			try {
 				getNodeList();
 				File file = new File("TestTester" + NameCount + ".xml");
 		        write(file, document);
 		        NameCount++;
+		        lb.setText("入力を取得しました");
 			} catch (Exception e1) {
+				lb.setText("エラーが発生しました");
 				e1.printStackTrace();
 			}
 		});
         
-        vb.setAlignment(Pos.CENTER);
-        Scene scene = new Scene(vb, 400, 200);
+        btn2.setOnAction(e -> {
+        	try {
+				getNodeList();
+				File file = new File("TestTester" + NameCount + ".xml");
+		        write(file, document);
+		        NameCount++;
+		        lb.setText("出力を取得しました");
+			} catch (Exception e1) {
+				lb.setText("エラーが発生しました");
+				e1.printStackTrace();
+			}
+        });
+        
+        btn3.setOnAction(e -> {
+        	try {
+        		getNodeList();
+        		SelectEvent();
+        	} catch (Exception e1) {
+				lb.setText("エラーが発生しました");
+				e1.printStackTrace();
+			}
+        	
+        });
+        btn4.setOnAction(e -> {
+        	primaryStage.close();
+        });
+        Scene scene = new Scene(bp, 500, 300);
         stage1.setScene(scene);
         stage1.show();
     }
