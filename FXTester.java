@@ -26,17 +26,16 @@ import javafx.stage.Stage;
  * @author yoshi
  */
 public class FXTester extends Application {
+	
 	String appName = "SplitBillApp";
 	SplitBillApp app;
-    Document document;
+    //Document document;
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     int cnt = 2;
     int point = 0;		//学生の点数格納
     int pointMax = 0;		//満点
     int dpoint = 0;		//動的テストの点数
     LinkedHashMap<Integer, Node> comList;		//学生のコンポーネント格納
-    
-    
     
     
     @Override
@@ -71,7 +70,6 @@ public class FXTester extends Application {
 	        Scene TesteeScene = primaryStage.getScene();
 	        if(TesteeScene != null) {
 	        	System.out.println("起動：OK");
-	        	point++;
 	        }
 	        else {
 	        	System.out.println("起動：NG");
@@ -85,7 +83,8 @@ public class FXTester extends Application {
 	        //比較
 	        if(nodetype.equals(TesteeRoot.getClass().getSimpleName())) {
 	        	System.out.println(nodetype + "：OK");
-	        	point++;
+	        	if(TesterRoot.getAttribute("Score").equals("1")) 
+	        		point++;
 	        }
 	        else {
 	        	System.out.println(nodetype + "：NG");
@@ -118,7 +117,8 @@ public class FXTester extends Application {
         //比較
         if(TesterAlignment.equals(TesteeAlignment)) {
         	System.out.println(TesterAlignment + "：OK");
-        	point++;
+        	if(TesterElement.getAttribute("Score").equals("1"))
+        		point++;
         }
         else {
         	System.out.println(TesterAlignment + "：NG");
@@ -144,7 +144,8 @@ public class FXTester extends Application {
 			}
 			if(TesterNodeName.equals(TesteeNodeName)) {
 				System.out.println(TesterNodeName + "：OK");
-				point++;
+				if(TesterElement.getAttribute("Score").equals("1"))
+	        		point++;
 				//Paneの場合
 				if (TesteeNode instanceof Pane) {
 					PaneHantei((Element) TesterNode, TesteeNode);
@@ -158,7 +159,6 @@ public class FXTester extends Application {
 			}
     	}
     }
-    
     
     void DynamicTest() {
     	System.out.println("動的テスト開始");
