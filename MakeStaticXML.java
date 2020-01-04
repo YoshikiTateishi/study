@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 
-
 import java.io.File;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -18,6 +17,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import javafx.application.Application;
 import javafx.collections.ObservableList;
@@ -30,6 +30,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ComboBoxBase;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -44,18 +45,19 @@ import javafx.stage.Stage;
  *
  * @author yoshi
  */
+
 public class MakeStaticXML extends Application {
-    
+
     Stage stage1, primaryStage;
     Document document;
-    CheckBoxTreeItem<String>[] pane;
+    CheckBoxTreeItem<String>[] pane;	//コンポーネントのチェックボックス
     CheckBoxTreeItem<String> PaneBox;
-    CheckSIDApp app;
-    int cnt;
-    int pointMax;
-    int NameCount;
-    Button EventButton;
-    
+    AddTaxApp app;	//採点するGUI課題
+    Label lb2;
+    TextArea ta;
+    int cnt;	//ノード取得用
+    int pointMax;	//満点
+
     @Override
     public void start(Stage stage) throws Exception {
     	//初期画面
@@ -74,12 +76,12 @@ public class MakeStaticXML extends Application {
         stage.setTitle("自動採点用XML生成");
         stage.show();
     }
-    
+
     //GUI起動
     void startModelAnswer() {
     	primaryStage = new Stage();
     	try {
-    		app = new CheckSIDApp();
+    		app = new AddTaxApp();
             app.start(primaryStage);
             getNodeList();
             SelectCom();
@@ -87,12 +89,12 @@ public class MakeStaticXML extends Application {
             e.printStackTrace();
     	}
     }
-    
+
     //レイアウトペイン取得メソッド
     void getNodeList() throws Exception {
     	pointMax = 0;
     	cnt = 2;
-    	pane = new CheckBoxTreeItem[200];
+    	pane = new CheckBoxTreeItem[100];	//最大100個まで
         // Documentインスタンスの生成
         DocumentBuilder documentBuilder;
         documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -115,13 +117,13 @@ public class MakeStaticXML extends Application {
         PaneBox = new CheckBoxTreeItem<String>();
         PaneBox = pane[1];
         //アライメント書き込み
-        PaneHantei((Node) root, Box);    
+        PaneHantei((Node) root, Box);
         //コンポーネント
         getCom(Box, root, PaneBox);
         scene.appendChild(Box);
         scene.setAttribute("ScoreMax", String.valueOf(pointMax));
     }
-    
+
     //コンポーネント読み込みメソッド
     void getCom(Element cp, Parent p, CheckBoxTreeItem<String> pb) {
     	ObservableList<Node> children = p.getChildrenUnmodifiable();
@@ -150,7 +152,7 @@ public class MakeStaticXML extends Application {
             }
         }
     }
-    
+
     //Alignment追加メソッド
     void PaneHantei(Node r, Element el) {
         if(r instanceof VBox) {
@@ -162,7 +164,7 @@ public class MakeStaticXML extends Application {
             el.setAttribute("Alignment", pane.getAlignment().toString());
         }
     }
-    
+
     //テキスト追加メソッド
     String addText(Node node) {
         if (node instanceof TextField) {
@@ -180,9 +182,7 @@ public class MakeStaticXML extends Application {
         }
         return null;
     }
-    
-    
-    
+
     //採点項目選択画面
     void SelectCom() {
     	Label lb = new Label("採点する項目を選択してください");
@@ -196,7 +196,7 @@ public class MakeStaticXML extends Application {
         		setPoint();
 				File file = new File("StaticTester.xml");
 	            write(file, document);
-	            
+
 	        	for(int i=0; i < pane.length; i++) {
 	            	if(pane[i] != null) {
 	            		if(pane[i].isSelected())
@@ -208,18 +208,16 @@ public class MakeStaticXML extends Application {
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
-        	
-        	Items();
+        	SelectInput();
         });
-        
         VBox root = new VBox(lb, tree, button);
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(10));
         stage1.setScene(new Scene(root, 300, 250));
         stage1.show();
     }
-    
-    //レイアウトペイン取得メソッド
+
+    //採点項目書き込みメソッド
     void setPoint() throws Exception {
     	pointMax = 0;
     	cnt = 2;
@@ -242,13 +240,13 @@ public class MakeStaticXML extends Application {
         	pointMax++;
         }
         //アライメント書き込み
-        PaneHantei((Node) root, Box);    
+        PaneHantei((Node) root, Box);
         //コンポーネント
         getCom1(Box, root, PaneBox);
         scene.appendChild(Box);
         scene.setAttribute("ScoreMax", String.valueOf(pointMax));
     }
-    
+
     //コンポーネント読み込みメソッド
     void getCom1(Element cp, Parent p, CheckBoxTreeItem<String> pb) {
     	ObservableList<Node> children = p.getChildrenUnmodifiable();
@@ -277,68 +275,212 @@ public class MakeStaticXML extends Application {
             }
         }
     }
-    
+
+    //イベント取得メソッド
     void addEvent(Node node, Element el) {
     	if(node instanceof ButtonBase) {
-        	Button btn = (Button) node;
-        	EventButton = new Button(); 
-        	EventButton.setOnAction(btn.getOnAction());
-        	btn.setOnAction(e -> {
-        		System.out.println("ボタンが押されました");
-        		EventButton.fire();
-        	});
-        	el.setAttribute("Event", "true");
+    		Button button = (Button) node;
+    		if (button.getOnAction() != null) {
+    			Button EventButton = new Button();
+            	EventButton.setOnAction(button.getOnAction());
+            	button.setOnAction(e -> {
+            		try {
+            			ta.setText("");
+    					setInput();
+    	        		EventButton.fire();
+    	        		setOutput();
+    				} catch (Exception e1) {
+    					e1.printStackTrace();
+    				}
+            	});
+            	el.setAttribute("Event", "true");
+    		}
+    		else if (node instanceof ComboBoxBase) {
+    			ComboBox cb = (ComboBox) node;
+    		}
         }
     }
+
+    //入力選択画面
+    void SelectInput() {
+    	for (int i=0; i<pane.length; i++) {
+    		if (pane[i] != null) {
+    			pane[i].setSelected(false);
+    			pane[i].setIndependent(true);
+    		}
+    	}
+    	Label lb = new Label("入力を選択してください");
+    	TreeView<String> tree = new TreeView<String>(PaneBox);
+        tree.setEditable(true);
+        tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
+        tree.setShowRoot(true);
+        Button button = new Button("決定");
+        button.setOnAction(e -> {
+        	SelectEvent();
+        });
+        VBox root = new VBox(lb, tree, button);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(10));
+        stage1.setScene(new Scene(root, 300, 250));
+        stage1.show();
+    }
+
+    //イベント選択画面
+    void SelectEvent() {
+    	for (int i=0; i<pane.length; i++) {
+    		if (pane[i] != null)
+    			pane[i].setSelected(false);
+    	}
+    	Label lb = new Label("イベントを選択してください");
+    	TreeView<String> tree = new TreeView<String>(PaneBox);
+        tree.setEditable(true);
+        tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
+        tree.setShowRoot(true);
+        Button button = new Button("決定");
+        button.setOnAction(e -> {
+        	SelectOutput();
+        });
+        VBox root = new VBox(lb, tree, button);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(10));
+        stage1.setScene(new Scene(root, 300, 250));
+        stage1.show();
+    }
     
+    //出力選択画面
+    void SelectOutput() {
+    	for (int i=0; i<pane.length; i++) {
+    		if (pane[i] != null)
+    			pane[i].setSelected(false);
+    	}
+    	Label lb = new Label("出力を選択してください");
+    	TreeView<String> tree = new TreeView<String>(PaneBox);
+        tree.setEditable(true);
+        tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
+        tree.setShowRoot(true);
+        Button button = new Button("決定");
+        button.setOnAction(e -> {
+        	Items();
+        });
+        VBox root = new VBox(lb, tree, button);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(10));
+        stage1.setScene(new Scene(root, 300, 250));
+        stage1.show();
+    }
+    
+    //テストケース作成画面
     void Items() {
-        Button btn1 = new Button("入力キャプチャ");
-        Button btn2 = new Button("出力キャプチャ");
+    	try {
+    		getNodeList();
+			File file = new File("Start.xml");
+	        write(file, document);
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+
+    	Label lb1 = new Label("GUIを操作してください");
+    	lb2 = new Label();
+    	Button btn1 = new Button("再設定");
+    	btn1.setOnAction(e -> {
+    		SelectInput();
+    	});
         Button btn4 = new Button("終了する");
-        VBox vb1 = new VBox(30, btn1, btn2, btn4);
+        VBox vb1 = new VBox(30, lb1, lb2, btn1, btn4);
         vb1.setAlignment(Pos.CENTER);
-        TextArea ta = new TextArea();
+        ta = new TextArea();
         ta.setPrefColumnCount(20);;
         ta.setEditable(false);
         VBox vb2 = new VBox(ta);
         vb2.setAlignment(Pos.CENTER);
         HBox hb = new HBox(40, vb1, vb2);
         hb.setAlignment(Pos.CENTER);
-        NameCount = 1;        
-        btn1.setOnAction(e -> {
-			try {
-				getNodeList();
-				File file = new File("TestTester" + NameCount + ".xml");
-		        write(file, document);
-		        NameCount++;
-		        ta.setText("入力を取得しました");
-			} catch (Exception e1) {
-				ta.setText("エラーが発生しました");
-				e1.printStackTrace();
-			}
-		});
-        
-        btn2.setOnAction(e -> {
-        	try {
-				getNodeList();
-				File file = new File("TestTester" + NameCount + ".xml");
-		        write(file, document);
-		        NameCount++;
-		        ta.setText("出力を取得しました");
-			} catch (Exception e1) {
-				ta.setText("エラーが発生しました");
-				e1.printStackTrace();
-			}
-        });
-
         btn4.setOnAction(e -> {
         	primaryStage.close();
+        	stage1.close();
         });
+
         Scene scene = new Scene(hb, 500, 300);
         stage1.setScene(scene);
         stage1.show();
     }
-    
+
+    //入力取得メソッド
+    void setInput() {
+    	try {
+			getNodeList();
+			File InputFile = new File("Input.xml");
+	        write(InputFile, document);
+	        File StartFile = new File("Start.xml");
+
+	        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	        DocumentBuilder builder = factory.newDocumentBuilder();
+	        Document InputDocument = builder.parse(InputFile);
+	        Document StartDocument = builder.parse(StartFile);
+
+	        //Scene
+	        Element InputScene = InputDocument.getDocumentElement();
+	        Element StartScene = StartDocument.getDocumentElement();
+
+	        //RootNode
+	        Element InputElement = (Element) InputScene.getChildNodes().item(1);
+	        Element StartElement = (Element) StartScene.getChildNodes().item(1);
+
+	        String s = "入力";
+	        CompareXML(InputElement, StartElement, s);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
+
+    //出力取得メソッド
+    void setOutput() {
+    	try {
+			getNodeList();
+			File OutputFile = new File("Output.xml");
+	        write(OutputFile, document);
+	        File InputFile = new File("Input.xml");
+
+	        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	        DocumentBuilder builder = factory.newDocumentBuilder();
+	        Document OutputDocument = builder.parse(OutputFile);
+	        Document InputDocument = builder.parse(InputFile);
+
+	        //Scene
+	        Element OutputScene = OutputDocument.getDocumentElement();
+	        Element InputScene = InputDocument.getDocumentElement();
+
+	        //RootNode
+	        Element OutputElement = (Element) OutputScene.getChildNodes().item(1);
+	        Element InputElement = (Element) InputScene.getChildNodes().item(1);
+
+	        String s = "出力";
+	        CompareXML(OutputElement, InputElement, s);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
+
+    void CompareXML(Element element1, Element element2, String str) {
+    	NodeList InputNodeList = element1.getChildNodes();
+    	NodeList StartNodeList = element2.getChildNodes();
+
+    	for (int i=0; i<InputNodeList.getLength(); i++) {
+    		org.w3c.dom.Node InputNode = InputNodeList.item(i);
+    		org.w3c.dom.Node StartNode = StartNodeList.item(i);
+    		if(InputNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE
+    				&& StartNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+    			if(!InputNode.getTextContent().equals(StartNode.getTextContent())) {
+    				ta.appendText(str + "：" + InputNode.getTextContent() + "\n");
+    			}
+    			if (InputNode.getChildNodes().item(1) != null) {
+    				CompareXML((Element) InputNode, (Element) StartNode, str);
+    			}
+    		}
+		}
+    }
+
     //XML書き込みメソッド
     boolean write(File file, Document document) {
         // Transformerインスタンスの生成
@@ -360,7 +502,7 @@ public class MakeStaticXML extends Application {
         }
         return true;
     }
-    
+
     public static void main(String[] args) {
         Application.launch(args);
     }
