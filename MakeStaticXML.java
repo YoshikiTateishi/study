@@ -52,7 +52,7 @@ public class MakeStaticXML extends Application {
     Document document;
     CheckBoxTreeItem<String>[] pane;	//コンポーネントのチェックボックス
     CheckBoxTreeItem<String> PaneBox;
-    AddTaxApp app;	//採点するGUI課題
+    CheckSIDApp app;	//採点するGUI課題
     Label lb2;
     TextArea ta;
     int cnt;	//ノード取得用
@@ -81,7 +81,7 @@ public class MakeStaticXML extends Application {
     void startModelAnswer() {
     	primaryStage = new Stage();
     	try {
-    		app = new AddTaxApp();
+    		app = new CheckSIDApp();
             app.start(primaryStage);
             getNodeList();
             SelectCom();
@@ -434,6 +434,7 @@ public class MakeStaticXML extends Application {
 		}
     }
 
+     
     //出力取得メソッド
     void setOutput() {
     	try {

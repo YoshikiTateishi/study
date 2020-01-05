@@ -27,8 +27,8 @@ import javafx.stage.Stage;
  */
 public class FXTester extends Application {
 	
-	String appName = "SplitBillApp";
-	SplitBillApp app;
+	String appName = "AddTaxApp";
+	CheckSIDApp app;
     //Document document;
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     int cnt = 2;
@@ -41,14 +41,16 @@ public class FXTester extends Application {
     @Override
     public void start(Stage primaryStage) {
 		//ここに採点するクラス名を入力
-    	app = new SplitBillApp();
+    	app = new CheckSIDApp();
         app.start(primaryStage);
         
         System.out.println("静的テスト開始");
         StaticTest(primaryStage);
+        System.out.println(point);
+        System.out.println(pointMax);
     	if (point == pointMax) {
     		System.out.println("静的テスト成功");
-    		//DynamicTest();
+    		DynamicTest();
     	}
     	else
     		System.out.println("静的テスト失敗");
@@ -81,15 +83,16 @@ public class FXTester extends Application {
 	        String nodetype = TesterRoot.getNodeName();
 	        comList.put(1, (Node) TesteeRoot);
 	        //比較
-	        if(nodetype.equals(TesteeRoot.getClass().getSimpleName())) {
-	        	System.out.println(nodetype + "：OK");
-	        	if(TesterRoot.getAttribute("Score").equals("1")) 
+	        if (TesterRoot.getAttribute("Score").equals("1")) {
+	        	if(nodetype.equals(TesteeRoot.getClass().getSimpleName())) {
+		        	System.out.println(nodetype + "：OK");
 	        		point++;
-	        }
-	        else {
-	        	System.out.println(nodetype + "：NG");
-	        	System.out.println(TesteeRoot.getClass().getSimpleName() + "ではありません");
-	        	return;
+		        }
+		        else {
+		        	System.out.println(nodetype + "：NG");
+		        	System.out.println(TesteeRoot.getClass().getSimpleName() + "ではありません");
+		        	return;
+		        }
 	        }
 	        //Alignment
 	        PaneHantei(TesterRoot, (Node)TesteeRoot);
@@ -117,8 +120,7 @@ public class FXTester extends Application {
         //比較
         if(TesterAlignment.equals(TesteeAlignment)) {
         	System.out.println(TesterAlignment + "：OK");
-        	if(TesterElement.getAttribute("Score").equals("1"))
-        		point++;
+    		point++;
         }
         else {
         	System.out.println(TesterAlignment + "：NG");
@@ -144,8 +146,7 @@ public class FXTester extends Application {
 			}
 			if(TesterNodeName.equals(TesteeNodeName)) {
 				System.out.println(TesterNodeName + "：OK");
-				if(TesterElement.getAttribute("Score").equals("1"))
-	        		point++;
+        		point++;
 				//Paneの場合
 				if (TesteeNode instanceof Pane) {
 					PaneHantei((Element) TesterNode, TesteeNode);
