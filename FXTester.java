@@ -26,28 +26,29 @@ import javafx.stage.Stage;
  * @author yoshi
  */
 public class FXTester extends Application {
-	
-	String appName = "AddTaxApp";
-	CheckSIDApp app;
-    //Document document;
+
+	String appName = "SplitBillApp";
+	SplitBillApp app;		//テストするプログラミング課題
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    int cnt = 2;
     int point = 0;		//学生の点数格納
     int pointMax = 0;		//満点
     int dpoint = 0;		//動的テストの点数
+    int tcsize = 12;		//テストケースの数
     LinkedHashMap<Integer, Node> comList;		//学生のコンポーネント格納
-    
-    
+	LinkedHashMap<Integer, Element> InputList;		//入力コンポーネント格納
+	int Eventnum = 0;		//イベントID
+	LinkedHashMap<Integer, Element> OutputList;		//出力コンポーネント格納
+
+
     @Override
     public void start(Stage primaryStage) {
 		//ここに採点するクラス名を入力
-    	app = new CheckSIDApp();
+    	app = new SplitBillApp();
         app.start(primaryStage);
-        
+
         System.out.println("静的テスト開始");
         StaticTest(primaryStage);
         System.out.println(point);
-        System.out.println(pointMax);
     	if (point == pointMax) {
     		System.out.println("静的テスト成功");
     		DynamicTest();
@@ -57,7 +58,7 @@ public class FXTester extends Application {
     	printScore();
     	primaryStage.close();
     }
-    
+
     void StaticTest(Stage primaryStage) {
     	comList = new LinkedHashMap<>();
     	try {
@@ -83,10 +84,9 @@ public class FXTester extends Application {
 	        String nodetype = TesterRoot.getNodeName();
 	        comList.put(1, (Node) TesteeRoot);
 	        //比較
-	        if (TesterRoot.getAttribute("Score").equals("1")) {
-	        	if(nodetype.equals(TesteeRoot.getClass().getSimpleName())) {
-		        	System.out.println(nodetype + "：OK");
-	        		point++;
+	        if(TesterRoot.getAttribute("Score").equals("1")) {
+		        if(nodetype.equals(TesteeRoot.getClass().getSimpleName())) {
+	        		PaneHantei(TesterRoot, (Node)TesteeRoot);
 		        }
 		        else {
 		        	System.out.println(nodetype + "：NG");
@@ -94,16 +94,14 @@ public class FXTester extends Application {
 		        	return;
 		        }
 	        }
-	        //Alignment
-	        PaneHantei(TesterRoot, (Node)TesteeRoot);
-	        
 	        getCom(TesterRoot, TesteeRoot);
-        
+
 		} catch(Exception e) {
 			e.printStackTrace();
+			return;
 		}
     }
-    
+
 	void PaneHantei(Element TesterElement, Node TesteeNode) {
 		String TesterAlignment = TesterElement.getAttribute("Alignment");
         String TesteeAlignment = null;
@@ -118,8 +116,8 @@ public class FXTester extends Application {
 	        TesteeAlignment = pane.getAlignment().toString();
         }
         //比較
-        if(TesterAlignment.equals(TesteeAlignment)) {
-        	System.out.println(TesterAlignment + "：OK");
+    	if(TesterAlignment.equals(TesteeAlignment)) {
+        	System.out.println(TesteeNode.getClass().getSimpleName() + "：OK");
     		point++;
         }
         else {
@@ -133,37 +131,45 @@ public class FXTester extends Application {
     void getCom(Element TesterElement, Parent TesteeParent) {
     	NodeList TesterNodes = TesterElement.getChildNodes();
     	ObservableList<Node> TesteeNodes = TesteeParent.getChildrenUnmodifiable();
+
     	int j = 1;		//XML調整用
     	for(int i=0; i<(TesterNodes.getLength()/2); i++) {
     		org.w3c.dom.Node TesterNode = TesterNodes.item(i+j);
+    		j++;
 			String TesterNodeName = TesterNode.getNodeName();
-			j++;
 			Node TesteeNode = TesteeNodes.get(i);
 			String TesteeNodeName = null;
 			if(i < TesteeNodes.size()) {
 				TesteeNodeName = TesteeNode.getClass().getSimpleName();
-				comList.put(i+2, TesteeNodes.get(i));
+				Element aa = (Element) TesterNode;
+				comList.put(Integer.parseInt(aa.getAttribute("ID")), TesteeNodes.get(i));
 			}
+
 			if(TesterNodeName.equals(TesteeNodeName)) {
 				System.out.println(TesterNodeName + "：OK");
-        		point++;
-				//Paneの場合
-				if (TesteeNode instanceof Pane) {
-					PaneHantei((Element) TesterNode, TesteeNode);
-					getCom((Element)TesterNode, (Parent)TesteeNode);
-				}
+				if(TesterElement.getAttribute("Score").equals("1"))
+	        		point++;
+
 			}
 			else {
 				System.out.println(TesterNode + "：NG");
 				System.out.println(TesteeNode + "ではありません。");
 				return;
 			}
+
+			//Paneの場合
+			if (TesteeNode instanceof Pane) {
+				//PaneHantei((Element) TesterNode, TesteeNode);
+				getCom((Element)TesterNode, (Parent)TesteeNode);
+			}
     	}
     }
-    
+
     void DynamicTest() {
     	System.out.println("動的テスト開始");
-    	for(int testcase=1; testcase<5; testcase++) {
+    	InputList = new LinkedHashMap<>();
+    	OutputList = new LinkedHashMap<>();
+    	for(int testcase=1; testcase<=tcsize; testcase++) {
 	    	try {
 	    		File TesterFile = new File("DynamicTester" + testcase + ".xml");
 	        	DocumentBuilder builder = factory.newDocumentBuilder();
@@ -172,51 +178,71 @@ public class FXTester extends Application {
 		        Element TesterScene = Tester.getDocumentElement();
 		        //RootNode
 		        Element TesterRoot = (Element) TesterScene.getChildNodes().item(1);
-		        String nodetype = TesterRoot.getNodeName();
-		        //Component
-		        NodeList TesterNodes = TesterRoot.getChildNodes();
-		        int j = 1;		//XML調整用
-		    	for(int i=0; i<(TesterNodes.getLength()/2); i++) {
-					Element TesterNodeElement = (Element) TesterNodes.item(i+j);
-					j++;
-					if(TesterNodeElement.getAttribute("Input").equals("true")) {
-						int num = Integer.parseInt(TesterNodeElement.getAttribute("ID"));
-						InputAction(num, TesterNodeElement);
-					}
-					if(TesterNodeElement.getAttribute("Event").equals("true")) {
-						int num = Integer.parseInt(TesterNodeElement.getAttribute("ID"));
-						EventAction(num, TesterNodeElement);
-					}
-					if(TesterNodeElement.getAttribute("Output").equals("true")) {
-						int num = Integer.parseInt(TesterNodeElement.getAttribute("ID"));
-						if(OutputAction(num, TesterNodeElement)) {
-							System.out.println("テストケース" + testcase + "成功");
-							dpoint++;
-						}
-						else {
-							System.out.println("テストケース" + testcase + "失敗");
-							return;
-						}
-					}
-		    	}
-		    	
+		        getXMLNode(TesterRoot);
+
+		        //動的テスト開始
+		    	InputAction(InputList);
+		    	EventAction(Eventnum);
+		    	if(OutputAction(OutputList)) {
+					System.out.println("テストケース" + testcase + "成功");
+					dpoint++;
+				}
+				else {
+					System.out.println("テストケース" + testcase + "失敗");
+					return;
+				}
 	    	} catch(Exception e) {
-				e.printStackTrace();
+	    		System.out.println("エラー");
+	    		return;
 			}
     	}
     }
     
-    void InputAction(int key, Element TesterElement) {
-    	Node TesterNode = comList.get(key);
-    	if(TesterNode instanceof TextInputControl) {
-    		TextInputControl tic = (TextInputControl) TesterNode;
-    		tic.setText(TesterElement.getTextContent());
+    //子ノード取得メソッド（XML）
+    void getXMLNode(Element element) {
+    	try {
+    		//Component
+            NodeList TesterNodes = element.getChildNodes();
+        	for(int i=0; i<(TesterNodes.getLength()); i++) {
+        		org.w3c.dom.Node TesterNode = TesterNodes.item(i);
+        		if(TesterNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+    				Element TesterNodeElement = (Element) TesterNode;
+    				//レイアウトペインの場合
+    				if(TesterNodeElement.getNodeName().equals("HBox")) {
+    					getXMLNode(TesterNodeElement);
+    				}
+
+    				int num = Integer.parseInt(TesterNodeElement.getAttribute("ID"));
+    				if(TesterNodeElement.getAttribute("Input").equals("true")) {
+    					InputList.put(num, TesterNodeElement);
+    				}
+    				if(TesterNodeElement.getAttribute("Event").equals("true")) {
+    					Eventnum = num;
+    				}
+    				if(TesterNodeElement.getAttribute("Output").equals("true")) {
+    					OutputList.put(num, TesterNodeElement);
+    				}
+        		}
+        	}
+    	} catch(Exception e) {
+    		e.printStackTrace();
     	}
-    	System.out.println("入力：" + TesterElement.getTextContent());
-    	
     }
     
-    void EventAction(int key, Element TesterElement) {
+    //入力値セットメソッド
+    void InputAction(LinkedHashMap<Integer, Element> list) {
+    	for(int key : list.keySet()) {
+    		Node TesteeNode = comList.get(key);
+        	if(TesteeNode instanceof TextInputControl) {
+        		TextInputControl tic = (TextInputControl) TesteeNode;
+        		tic.setText(list.get(key).getTextContent());
+        	}
+        	System.out.println("入力：" + list.get(key).getTextContent());
+    	}
+    }
+    
+    //イベント動作メソッド
+    void EventAction(int key) {
     	Node TesterNode = comList.get(key);
     	if(TesterNode instanceof ButtonBase) {
     		ButtonBase bb = (ButtonBase) comList.get(key);
@@ -224,35 +250,36 @@ public class FXTester extends Application {
     	}
     }
     
-    boolean OutputAction(int key, Element TesterElement) {
+    //出力値取得メソッド
+    boolean OutputAction(LinkedHashMap<Integer, Element> list) {
     	String TesteeOut = null;
-    	Node TesterNode = comList.get(key);
-    	//出力がラベル
-    	if(TesterNode instanceof Label) {
-    		Label label = (Label) TesterNode;
-    		TesteeOut = label.getText();
+    	for (int key: list.keySet()) {
+        	Node TesterNode = comList.get(key);
+        	//出力がラベル
+        	if(TesterNode instanceof Label) {
+        		Label label = (Label) TesterNode;
+        		TesteeOut = label.getText();
+        	}
+        	//出力がテキストフィールド
+        	else if (TesterNode instanceof TextInputControl) {
+        		TextInputControl tic = (TextInputControl) TesterNode;
+        		TesteeOut = tic.getText();
+        	}
+
+        	System.out.println("出力：" + TesteeOut);
+    		if(!TesteeOut.equals(list.get(key).getTextContent())) {
+    			System.out.println(TesteeOut + "ではありません。");
+    			return false;
+    		}
     	}
-    	//出力がテキストフィールド
-    	else if (TesterNode instanceof TextInputControl) {
-    		TextInputControl tic = (TextInputControl) TesterNode;
-    		TesteeOut = tic.getText();
-    	}
-    	
-    	System.out.println("出力：" + TesteeOut);
-		if(TesteeOut.equals(TesterElement.getTextContent())) {
-			return true;
-		}
-		else {
-			System.out.println(TesteeOut + "ではありません。");
-			return false;
-		}
+    	return true;
     }
-    
+
     void printScore() {
-    	System.out.println(String.format("【実行対象:%s, 学籍番号:%s, 名前:%s, 点数:%d】", 
-    			appName, app.gakuban, app.yourname, (10 * point / pointMax) + dpoint));
+    	System.out.println(String.format("【実行対象:%s, 学籍番号:%s, 名前:%s, 点数:%d】",
+    			appName, app.gakuban, app.yourname, (10 * (point + dpoint) / (pointMax + tcsize))));
     }
-    
+
     public static void main(String[] args) {
         Application.launch(args);
     }

@@ -52,7 +52,7 @@ public class MakeStaticXML extends Application {
     Document document;
     CheckBoxTreeItem<String>[] pane;	//コンポーネントのチェックボックス
     CheckBoxTreeItem<String> PaneBox;
-    CheckSIDApp app;	//採点するGUI課題
+    SplitBillApp app;	//採点するGUI課題
     Label lb2;
     TextArea ta;
     int cnt;	//ノード取得用
@@ -81,7 +81,7 @@ public class MakeStaticXML extends Application {
     void startModelAnswer() {
     	primaryStage = new Stage();
     	try {
-    		app = new CheckSIDApp();
+    		app = new SplitBillApp();
             app.start(primaryStage);
             getNodeList();
             SelectCom();
@@ -263,6 +263,7 @@ public class MakeStaticXML extends Application {
                 String comText = addText(children.get(i));
                 if(comText != null) {
                 	Comp.appendChild(document.createTextNode(comText));
+                	System.out.println(comText);
                 }
                 addEvent(children.get(i), Comp);
                 cp.appendChild(Comp);
@@ -279,7 +280,7 @@ public class MakeStaticXML extends Application {
     //イベント取得メソッド
     void addEvent(Node node, Element el) {
     	if(node instanceof ButtonBase) {
-    		Button button = (Button) node;
+    		ButtonBase button = (ButtonBase) node;
     		if (button.getOnAction() != null) {
     			Button EventButton = new Button();
             	EventButton.setOnAction(button.getOnAction());
@@ -434,7 +435,6 @@ public class MakeStaticXML extends Application {
 		}
     }
 
-     
     //出力取得メソッド
     void setOutput() {
     	try {
