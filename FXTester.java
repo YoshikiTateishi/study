@@ -14,7 +14,9 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ButtonBase;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -33,7 +35,7 @@ public class FXTester extends Application {
     int point = 0;		//学生の点数格納
     int pointMax = 0;		//満点
     int dpoint = 0;		//動的テストの点数
-    int tcsize = 12;		//テストケースの数
+    int tcsize = 10;		//テストケースの数
     LinkedHashMap<Integer, Node> comList;		//学生のコンポーネント格納
 	LinkedHashMap<Integer, Element> InputList;		//入力コンポーネント格納
 	int Eventnum = 0;		//イベントID
@@ -197,7 +199,7 @@ public class FXTester extends Application {
 			}
     	}
     }
-    
+
     //子ノード取得メソッド（XML）
     void getXMLNode(Element element) {
     	try {
@@ -228,19 +230,42 @@ public class FXTester extends Application {
     		e.printStackTrace();
     	}
     }
-    
+
     //入力値セットメソッド
     void InputAction(LinkedHashMap<Integer, Element> list) {
     	for(int key : list.keySet()) {
     		Node TesteeNode = comList.get(key);
+    		String TesteeIn = null;
         	if(TesteeNode instanceof TextInputControl) {
         		TextInputControl tic = (TextInputControl) TesteeNode;
         		tic.setText(list.get(key).getTextContent());
+        		TesteeIn = tic.getText();
         	}
-        	System.out.println("入力：" + list.get(key).getTextContent());
+        	if(TesteeNode instanceof RadioButton) {
+        		RadioButton rb = (RadioButton) TesteeNode;
+        		if(list.get(key).getTextContent().equals("1")){
+        			rb.setSelected(true);
+        			TesteeIn = rb.getText();
+        		}
+        		else {
+        			rb.setSelected(false);
+        		}
+        	}
+        	if(TesteeNode instanceof CheckBox) {
+        		CheckBox cb = (CheckBox) TesteeNode;
+        		if(list.get(key).getTextContent().equals("1")){
+        			cb.setSelected(true);
+        			TesteeIn = cb.getText();
+        		}
+        		else {
+        			cb.setSelected(false);
+        		}
+        	}
+        	if (TesteeIn != null)
+        		System.out.println("入力：" + TesteeIn);
     	}
     }
-    
+
     //イベント動作メソッド
     void EventAction(int key) {
     	Node TesterNode = comList.get(key);
@@ -249,7 +274,7 @@ public class FXTester extends Application {
     		bb.fire();
     	}
     }
-    
+
     //出力値取得メソッド
     boolean OutputAction(LinkedHashMap<Integer, Element> list) {
     	String TesteeOut = null;

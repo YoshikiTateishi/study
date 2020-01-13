@@ -12,8 +12,8 @@ import java.util.concurrent.TimeUnit;
 public class CheckFX2 {
 
     static String pathSrc = "OOP2019";
-    static String testee = "CheckSIDApp.java";
-    static String tester = "FXTester.java";
+    static String testee = "SplitBillApp.java";
+    static String tester = "SplitBillAppTester.java";
     static String pathWork = "OOPwork";
 
     public static void main(String[] args) throws Exception {
@@ -41,7 +41,7 @@ public class CheckFX2 {
             	System.out.println(" --- Skip! NOT java file");
             	continue;
             }
-            
+
             // ソースファイルコピー
             File testerProg = new File(pathWork + "\\" + tester);
             File testeeFile = new File(pathWork + "\\" + testee);
@@ -95,7 +95,7 @@ public class CheckFX2 {
             pb2.redirectErrorStream(true);
             pb2.command(java);
             Process p2 = pb2.start();
-            boolean ontime = p2.waitFor(5, TimeUnit.SECONDS);
+            boolean ontime = p2.waitFor(2, TimeUnit.SECONDS);
             if (!ontime) {
                 System.out.println("  - Timeout in thread \"main\"");
                 p2.destroy();

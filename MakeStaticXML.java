@@ -52,7 +52,7 @@ public class MakeStaticXML extends Application {
     Document document;
     CheckBoxTreeItem<String>[] pane;	//コンポーネントのチェックボックス
     CheckBoxTreeItem<String> PaneBox;
-    SplitBillApp app;	//採点するGUI課題
+    CheckSIDApp app;	//採点するGUI課題
     Label lb2;
     TextArea ta;
     int cnt;	//ノード取得用
@@ -81,7 +81,7 @@ public class MakeStaticXML extends Application {
     void startModelAnswer() {
     	primaryStage = new Stage();
     	try {
-    		app = new SplitBillApp();
+    		app = new CheckSIDApp();
             app.start(primaryStage);
             getNodeList();
             SelectCom();
@@ -355,6 +355,10 @@ public class MakeStaticXML extends Application {
     			pane[i].setSelected(false);
     	}
     	Label lb = new Label("出力を選択してください");
+    	CheckBoxTreeItem<String> nextScene = new CheckBoxTreeItem<>("新しい画面");
+    	CheckBoxTreeItem<String> AlertScene = new CheckBoxTreeItem<>("アラート");
+    	PaneBox.getChildren().add(nextScene);
+    	PaneBox.getChildren().add(AlertScene);
     	TreeView<String> tree = new TreeView<String>(PaneBox);
         tree.setEditable(true);
         tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
