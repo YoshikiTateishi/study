@@ -35,7 +35,7 @@ public class FXTester extends Application {
     int point = 0;		//学生の点数格納
     int pointMax = 0;		//満点
     int dpoint = 0;		//動的テストの点数
-    int tcsize = 10;		//テストケースの数
+    int tcsize = 12;		//テストケースの数
     LinkedHashMap<Integer, Node> comList;		//学生のコンポーネント格納
 	LinkedHashMap<Integer, Element> InputList;		//入力コンポーネント格納
 	int Eventnum = 0;		//イベントID
@@ -58,7 +58,7 @@ public class FXTester extends Application {
     	else
     		System.out.println("静的テスト失敗");
     	printScore();
-    	primaryStage.close();
+    	//primaryStage.close();
     }
 
     void StaticTest(Stage primaryStage) {
@@ -154,8 +154,8 @@ public class FXTester extends Application {
 
 			}
 			else {
-				System.out.println(TesterNode + "：NG");
-				System.out.println(TesteeNode + "ではありません。");
+				System.out.println(TesterNodeName + "：NG");
+				System.out.println(TesteeNodeName + "ではありません。");
 				return;
 			}
 
@@ -169,9 +169,11 @@ public class FXTester extends Application {
 
     void DynamicTest() {
     	System.out.println("動的テスト開始");
-    	InputList = new LinkedHashMap<>();
-    	OutputList = new LinkedHashMap<>();
+    	//InputList = new LinkedHashMap<>();
+    	//OutputList = new LinkedHashMap<>();
     	for(int testcase=1; testcase<=tcsize; testcase++) {
+    		InputList = new LinkedHashMap<>();
+        	OutputList = new LinkedHashMap<>();
 	    	try {
 	    		File TesterFile = new File("DynamicTester" + testcase + ".xml");
 	        	DocumentBuilder builder = factory.newDocumentBuilder();
@@ -210,7 +212,7 @@ public class FXTester extends Application {
         		if(TesterNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
     				Element TesterNodeElement = (Element) TesterNode;
     				//レイアウトペインの場合
-    				if(TesterNodeElement.getNodeName().equals("HBox")) {
+    				if(TesterNode.getChildNodes() != null) {
     					getXMLNode(TesterNodeElement);
     				}
 
@@ -278,10 +280,13 @@ public class FXTester extends Application {
     //出力値取得メソッド
     boolean OutputAction(LinkedHashMap<Integer, Element> list) {
     	String TesteeOut = null;
-    	for (int key: list.keySet()) {
-        	Node TesterNode = comList.get(key);
+		for (int key: list.keySet()) {
+			Node TesterNode = comList.get(key);
+			if (app.alert != null) {
+	    		TesteeOut =  app.alert.getAlertType().toString();
+	    	}
         	//出力がラベル
-        	if(TesterNode instanceof Label) {
+        	else if(TesterNode instanceof Label) {
         		Label label = (Label) TesterNode;
         		TesteeOut = label.getText();
         	}

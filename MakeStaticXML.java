@@ -51,8 +51,10 @@ public class MakeStaticXML extends Application {
     Stage stage1, primaryStage;
     Document document;
     CheckBoxTreeItem<String>[] pane;	//コンポーネントのチェックボックス
+    CheckBoxTreeItem<String>[] Eventpane;	//コンポーネントのチェックボックス
+    CheckBoxTreeItem<String>[] Outputpane;	//コンポーネントのチェックボックス
     CheckBoxTreeItem<String> PaneBox;
-    CheckSIDApp app;	//採点するGUI課題
+    SplitBillApp app;	//採点するGUI課題
     Label lb2;
     TextArea ta;
     int cnt;	//ノード取得用
@@ -81,7 +83,7 @@ public class MakeStaticXML extends Application {
     void startModelAnswer() {
     	primaryStage = new Stage();
     	try {
-    		app = new CheckSIDApp();
+    		app = new SplitBillApp();
             app.start(primaryStage);
             getNodeList();
             SelectCom();
@@ -242,13 +244,42 @@ public class MakeStaticXML extends Application {
         //アライメント書き込み
         PaneHantei((Node) root, Box);
         //コンポーネント
-        getCom1(Box, root, PaneBox);
+        getPointCom(Box, root);
         scene.appendChild(Box);
         scene.setAttribute("ScoreMax", String.valueOf(pointMax));
     }
+    
+  //採点項目書き込みメソッド
+    void setInOut(String s, CheckBoxTreeItem<String>[] cbti) throws Exception {
+    	pointMax = 0;
+    	cnt = 2;
+    	Element TesterScene = document.getDocumentElement();
+    	Element TesterRoot = (Element) TesterScene.getChildNodes().item(0);
+    	getInOutCom(TesterRoot, s, cbti);
+    	
+    }
+    
+    void getInOutCom(Element cp, String s, CheckBoxTreeItem<String>[] cbti) {
+    	NodeList TesterNodes = cp.getChildNodes();
+        for (int i=0; i<TesterNodes.getLength(); i++) {
+        	org.w3c.dom.Node TesterNode = TesterNodes.item(i);
+        	if(TesterNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+	        	System.out.println(TesterNode.getNodeName());
+	        	Element TesterElement = (Element) TesterNode;
+	        	if (cbti[cnt].isSelected()) {
+	        		System.out.println("成功");
+	        		TesterElement.setAttribute(s, "true");
+	        	}
+	        	cnt++;
+	        	if (TesterElement.getChildNodes() != null) {
+	        		getInOutCom(TesterElement, s, cbti);
+	        	}
+        	}
+        }
+    }
 
     //コンポーネント読み込みメソッド
-    void getCom1(Element cp, Parent p, CheckBoxTreeItem<String> pb) {
+    void getPointCom(Element cp, Parent p) {
     	ObservableList<Node> children = p.getChildrenUnmodifiable();
         if (children != null) {
             for (int i=0; i<children.size(); i++) {
@@ -265,18 +296,72 @@ public class MakeStaticXML extends Application {
                 	Comp.appendChild(document.createTextNode(comText));
                 	System.out.println(comText);
                 }
-                addEvent(children.get(i), Comp);
                 cp.appendChild(Comp);
                 cnt++;
                 Node node = children.get(i);
                 if (node instanceof Pane) {     //レイアウトペイン判定
                     PaneHantei((Node)node, Comp);
-                    getCom1(Comp, (Parent) node, pane[cnt-1]);
+                    getPointCom(Comp, (Parent) node);
                 }
             }
         }
     }
 
+    //入力選択画面
+    void SelectInput() {
+    	Label lb = new Label("入力を選択してください");
+    	CheckBoxTreeItem<String>[] Inputpane = pane;
+    	PaneBox = Inputpane[1];
+    	TreeView<String> tree = new TreeView<String>(PaneBox);
+        tree.setEditable(true);
+        tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
+        tree.setShowRoot(true);
+        Button button = new Button("決定");
+        button.setOnAction(e -> {
+        	try {
+				setInOut("Input", Inputpane);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+
+        	SelectEvent();
+        });
+        VBox root = new VBox(lb, tree, button);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(10));
+        stage1.setScene(new Scene(root, 300, 250));
+        stage1.show();
+    }
+
+    //イベント選択画面
+    void SelectEvent() {
+    	for (int i=0; i<pane.length; i++) {
+    		if (pane[i] != null)
+    			pane[i].setSelected(false);
+    	}
+    	Label lb = new Label("イベントを選択してください");
+    	CheckBoxTreeItem<String>[] Eventpane = pane;
+    	PaneBox = Eventpane[1];
+    	TreeView<String> tree = new TreeView<String>(PaneBox);
+        tree.setEditable(true);
+        tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
+        tree.setShowRoot(true);
+        Button button = new Button("決定");
+        button.setOnAction(e -> {
+        	try {
+				setInOut("Event", Eventpane);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+        	SelectOutput();
+        });
+        VBox root = new VBox(lb, tree, button);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(10));
+        stage1.setScene(new Scene(root, 300, 250));
+        stage1.show();
+    }
+    
     //イベント取得メソッド
     void addEvent(Node node, Element el) {
     	if(node instanceof ButtonBase) {
@@ -301,52 +386,6 @@ public class MakeStaticXML extends Application {
     		}
         }
     }
-
-    //入力選択画面
-    void SelectInput() {
-    	for (int i=0; i<pane.length; i++) {
-    		if (pane[i] != null) {
-    			pane[i].setSelected(false);
-    			pane[i].setIndependent(true);
-    		}
-    	}
-    	Label lb = new Label("入力を選択してください");
-    	TreeView<String> tree = new TreeView<String>(PaneBox);
-        tree.setEditable(true);
-        tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
-        tree.setShowRoot(true);
-        Button button = new Button("決定");
-        button.setOnAction(e -> {
-        	SelectEvent();
-        });
-        VBox root = new VBox(lb, tree, button);
-        root.setAlignment(Pos.CENTER);
-        root.setPadding(new Insets(10));
-        stage1.setScene(new Scene(root, 300, 250));
-        stage1.show();
-    }
-
-    //イベント選択画面
-    void SelectEvent() {
-    	for (int i=0; i<pane.length; i++) {
-    		if (pane[i] != null)
-    			pane[i].setSelected(false);
-    	}
-    	Label lb = new Label("イベントを選択してください");
-    	TreeView<String> tree = new TreeView<String>(PaneBox);
-        tree.setEditable(true);
-        tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
-        tree.setShowRoot(true);
-        Button button = new Button("決定");
-        button.setOnAction(e -> {
-        	SelectOutput();
-        });
-        VBox root = new VBox(lb, tree, button);
-        root.setAlignment(Pos.CENTER);
-        root.setPadding(new Insets(10));
-        stage1.setScene(new Scene(root, 300, 250));
-        stage1.show();
-    }
     
     //出力選択画面
     void SelectOutput() {
@@ -355,16 +394,25 @@ public class MakeStaticXML extends Application {
     			pane[i].setSelected(false);
     	}
     	Label lb = new Label("出力を選択してください");
-    	CheckBoxTreeItem<String> nextScene = new CheckBoxTreeItem<>("新しい画面");
-    	CheckBoxTreeItem<String> AlertScene = new CheckBoxTreeItem<>("アラート");
-    	PaneBox.getChildren().add(nextScene);
-    	PaneBox.getChildren().add(AlertScene);
+//    	CheckBoxTreeItem<String> nextScene = new CheckBoxTreeItem<>("新しい画面");
+//    	CheckBoxTreeItem<String> AlertScene = new CheckBoxTreeItem<>("アラート");
+//    	PaneBox.getChildren().add(nextScene);
+//    	PaneBox.getChildren().add(AlertScene);
+    	CheckBoxTreeItem<String>[] Eventpane = pane;
+    	PaneBox = Eventpane[1];
     	TreeView<String> tree = new TreeView<String>(PaneBox);
         tree.setEditable(true);
         tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
         tree.setShowRoot(true);
         Button button = new Button("決定");
         button.setOnAction(e -> {
+        	try {
+				setInOut("Output", Eventpane);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+        	File file = new File("tesutodayo.xml");
+        	write(file, document);
         	Items();
         });
         VBox root = new VBox(lb, tree, button);
