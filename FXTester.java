@@ -13,8 +13,10 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextInputControl;
@@ -29,8 +31,8 @@ import javafx.stage.Stage;
  */
 public class FXTester extends Application {
 
-	String appName = "SplitBillApp";
-	SplitBillApp app;		//テストするプログラミング課題
+	String appName = "AddTaxApp";
+	AddTaxApp app;		//テストするプログラミング課題
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     int point = 0;		//学生の点数格納
     int pointMax = 0;		//満点
@@ -41,11 +43,10 @@ public class FXTester extends Application {
 	int Eventnum = 0;		//イベントID
 	LinkedHashMap<Integer, Element> OutputList;		//出力コンポーネント格納
 
-
     @Override
     public void start(Stage primaryStage) {
 		//ここに採点するクラス名を入力
-    	app = new SplitBillApp();
+    	app = new AddTaxApp();
         app.start(primaryStage);
 
         System.out.println("静的テスト開始");
@@ -169,8 +170,6 @@ public class FXTester extends Application {
 
     void DynamicTest() {
     	System.out.println("動的テスト開始");
-    	//InputList = new LinkedHashMap<>();
-    	//OutputList = new LinkedHashMap<>();
     	for(int testcase=1; testcase<=tcsize; testcase++) {
     		InputList = new LinkedHashMap<>();
         	OutputList = new LinkedHashMap<>();
@@ -196,7 +195,7 @@ public class FXTester extends Application {
 					return;
 				}
 	    	} catch(Exception e) {
-	    		System.out.println("エラー");
+	    		e.printStackTrace();
 	    		return;
 			}
     	}
@@ -282,8 +281,10 @@ public class FXTester extends Application {
     	String TesteeOut = null;
 		for (int key: list.keySet()) {
 			Node TesterNode = comList.get(key);
-			if (app.alert != null) {
-	    		TesteeOut =  app.alert.getAlertType().toString();
+			Dialog c = null;
+			if (c instanceof Alert) {
+				Alert alert = (Alert) c;
+	    		TesteeOut =  alert.getAlertType().toString();
 	    	}
         	//出力がラベル
         	else if(TesterNode instanceof Label) {
