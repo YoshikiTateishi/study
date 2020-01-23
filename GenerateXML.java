@@ -26,16 +26,19 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -53,7 +56,7 @@ public class GenerateXML extends Application {
     Document document;
     CheckBoxTreeItem<String>[] pane;	//コンポーネントのチェックボックス
     CheckBoxTreeItem<String> PaneBox;
-    LunchCalcApp app;	//採点するGUI課題
+    TicketCalculator app;	//採点するGUI課題
     Label lb2;
     TextArea ta;
     int cnt;	//ノード取得用
@@ -82,7 +85,7 @@ public class GenerateXML extends Application {
     void startModelAnswer() {
     	primaryStage = new Stage();
     	try {
-    		app = new LunchCalcApp();
+    		app = new TicketCalculator();
             app.start(primaryStage);
             getNodeList();
             SelectCom();
@@ -133,6 +136,14 @@ public class GenerateXML extends Application {
                 cnt++;
                 Node node = children.get(i);
                 if (node instanceof Pane) {     //レイアウトペイン判定
+                    pane[cnt-1].setExpanded(true);
+                    getCom((Parent) node, pane[cnt-1]);
+                }
+                else if (node instanceof MenuBar) {     //メニューバー判定
+                    pane[cnt-1].setExpanded(true);
+                    getCom((Parent) node, pane[cnt-1]);
+                }
+                else if (node instanceof BarChart) {     //レイアウトペイン判定
                     pane[cnt-1].setExpanded(true);
                     getCom((Parent) node, pane[cnt-1]);
                 }
@@ -268,6 +279,10 @@ public class GenerateXML extends Application {
         }
         else if(r instanceof GridPane) {
             GridPane pane = (GridPane) r;
+            el.setAttribute("Alignment", pane.getAlignment().toString());
+        }
+        else if(r instanceof FlowPane) {
+            FlowPane pane = (FlowPane) r;
             el.setAttribute("Alignment", pane.getAlignment().toString());
         }
     }
