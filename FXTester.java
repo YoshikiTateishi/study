@@ -20,6 +20,8 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -31,13 +33,13 @@ import javafx.stage.Stage;
  */
 public class FXTester extends Application {
 
-	String appName = "AddTaxApp";
-	AddTaxApp app;		//テストするプログラミング課題
+	String appName = "CheckSIDApp";
+	CheckSIDApp app;		//テストするプログラミング課題
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     int point = 0;		//学生の点数格納
     int pointMax = 0;		//満点
     int dpoint = 0;		//動的テストの点数
-    int tcsize = 12;		//テストケースの数
+    int tcsize = 4;		//テストケースの数
     LinkedHashMap<Integer, Node> comList;		//学生のコンポーネント格納
 	LinkedHashMap<Integer, Element> InputList;		//入力コンポーネント格納
 	int Eventnum = 0;		//イベントID
@@ -46,7 +48,7 @@ public class FXTester extends Application {
     @Override
     public void start(Stage primaryStage) {
 		//ここに採点するクラス名を入力
-    	app = new AddTaxApp();
+    	app = new CheckSIDApp();
         app.start(primaryStage);
 
         System.out.println("静的テスト開始");
@@ -59,7 +61,7 @@ public class FXTester extends Application {
     	else
     		System.out.println("静的テスト失敗");
     	printScore();
-    	//primaryStage.close();
+    	primaryStage.close();
     }
 
     void StaticTest(Stage primaryStage) {
@@ -117,6 +119,13 @@ public class FXTester extends Application {
         else if (TesteeNode instanceof HBox) {
         	HBox pane = (HBox) TesteeNode;
 	        TesteeAlignment = pane.getAlignment().toString();
+        }
+        else if(TesteeNode instanceof BorderPane) {
+            BorderPane pane = (BorderPane) TesteeNode;
+        }
+        else if(TesteeNode instanceof GridPane) {
+            GridPane pane = (GridPane) TesteeNode;
+            TesteeAlignment = pane.getAlignment().toString();
         }
         //比較
     	if(TesterAlignment.equals(TesteeAlignment)) {
