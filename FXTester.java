@@ -16,11 +16,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -33,13 +35,13 @@ import javafx.stage.Stage;
  */
 public class FXTester extends Application {
 
-	String appName = "CheckSIDApp";
-	CheckSIDApp app;		//テストするプログラミング課題
+	String appName = "TicketCalculator";
+	TicketCalculator app;		//テストするプログラミング課題
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     int point = 0;		//学生の点数格納
-    int pointMax = 0;		//満点
+    int pointMax = 1;		//満点
     int dpoint = 0;		//動的テストの点数
-    int tcsize = 4;		//テストケースの数
+    int tcsize = 0;		//テストケースの数
     LinkedHashMap<Integer, Node> comList;		//学生のコンポーネント格納
 	LinkedHashMap<Integer, Element> InputList;		//入力コンポーネント格納
 	int Eventnum = 0;		//イベントID
@@ -48,15 +50,14 @@ public class FXTester extends Application {
     @Override
     public void start(Stage primaryStage) {
 		//ここに採点するクラス名を入力
-    	app = new CheckSIDApp();
+    	app = new TicketCalculator();
         app.start(primaryStage);
 
         System.out.println("静的テスト開始");
         StaticTest(primaryStage);
-        System.out.println(point);
     	if (point == pointMax) {
     		System.out.println("静的テスト成功");
-    		DynamicTest();
+    		//DynamicTest();
     	}
     	else
     		System.out.println("静的テスト失敗");
@@ -109,7 +110,7 @@ public class FXTester extends Application {
 
 	void PaneHantei(Element TesterElement, Node TesteeNode) {
 		String TesterAlignment = TesterElement.getAttribute("Alignment");
-        String TesteeAlignment = null;
+        String TesteeAlignment = "";
         //VBox
         if(TesteeNode instanceof VBox) {
         	VBox pane = (VBox) TesteeNode;
@@ -127,13 +128,17 @@ public class FXTester extends Application {
             GridPane pane = (GridPane) TesteeNode;
             TesteeAlignment = pane.getAlignment().toString();
         }
+        else if(TesteeNode instanceof FlowPane) {
+            FlowPane pane = (FlowPane) TesteeNode;
+            TesteeAlignment = pane.getAlignment().toString();
+        }
         //比較
     	if(TesterAlignment.equals(TesteeAlignment)) {
         	System.out.println(TesteeNode.getClass().getSimpleName() + "：OK");
     		point++;
         }
         else {
-        	System.out.println(TesterAlignment + "：NG");
+        	System.out.println(TesteeNode.getClass().getSimpleName() + "：NG");
         	System.out.println(TesteeAlignment + "ではありません。");
         	return;
         }
@@ -156,8 +161,14 @@ public class FXTester extends Application {
 				Element aa = (Element) TesterNode;
 				comList.put(Integer.parseInt(aa.getAttribute("ID")), TesteeNodes.get(i));
 			}
-
-			if(TesterNodeName.equals(TesteeNodeName)) {
+			
+			//Paneの場合
+			if (TesteeNode instanceof Pane) {
+				PaneHantei((Element) TesterNode, TesteeNode);
+				getCom((Element)TesterNode, (Parent)TesteeNode);
+			}
+			
+			else if(TesterNodeName.equals(TesteeNodeName)) {
 				System.out.println(TesterNodeName + "：OK");
 				if(TesterElement.getAttribute("Score").equals("1"))
 	        		point++;
@@ -169,11 +180,7 @@ public class FXTester extends Application {
 				return;
 			}
 
-			//Paneの場合
-			if (TesteeNode instanceof Pane) {
-				//PaneHantei((Element) TesterNode, TesteeNode);
-				getCom((Element)TesterNode, (Parent)TesteeNode);
-			}
+			
     	}
     }
 
@@ -271,6 +278,13 @@ public class FXTester extends Application {
         			cb.setSelected(false);
         		}
         	}
+        	if(TesteeNode instanceof ComboBox) {
+        		ComboBox cb = (ComboBox) TesteeNode;
+        		String a = list.get(key).getTextContent();
+        		if(!a.equals("null"))
+        			cb.setValue(Integer.parseInt(a));
+        		TesteeIn = String.valueOf(cb.getValue());
+        	}
         	if (TesteeIn != null)
         		System.out.println("入力：" + TesteeIn);
     	}
@@ -280,8 +294,13 @@ public class FXTester extends Application {
     void EventAction(int key) {
     	Node TesterNode = comList.get(key);
     	if(TesterNode instanceof ButtonBase) {
-    		ButtonBase bb = (ButtonBase) comList.get(key);
-    		bb.fire();
+    		try {
+    			ButtonBase bb = (ButtonBase) comList.get(key);
+        		bb.fire();
+    		} catch(Exception e) {
+    			e.printStackTrace();
+    		}
+    		
     	}
     }
 
@@ -303,11 +322,15 @@ public class FXTester extends Application {
         	//出力がテキストフィールド
         	else if (TesterNode instanceof TextInputControl) {
         		TextInputControl tic = (TextInputControl) TesterNode;
-        		TesteeOut = tic.getText();
+        		TesteeOut = String.valueOf(tic.getText());
         	}
-
+			//出力がComboBox
+			if(TesterNode instanceof ComboBox) {
+        		ComboBox cb = (ComboBox) TesterNode;
+    			TesteeOut = String.valueOf(cb.getValue());
+        	}
         	System.out.println("出力：" + TesteeOut);
-    		if(!TesteeOut.equals(list.get(key).getTextContent())) {
+        	if(!TesteeOut.equals(list.get(key).getTextContent())) {
     			System.out.println(TesteeOut + "ではありません。");
     			return false;
     		}
