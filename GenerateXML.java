@@ -56,7 +56,7 @@ public class GenerateXML extends Application {
     Document document;
     CheckBoxTreeItem<String>[] pane;	//コンポーネントのチェックボックス
     CheckBoxTreeItem<String> PaneBox;
-    TicketCalculator app;	//採点するGUI課題
+    CheckSIDApp app;	//採点するGUI課題
     Label lb2;
     TextArea ta;
     int cnt;	//ノード取得用
@@ -85,7 +85,7 @@ public class GenerateXML extends Application {
     void startModelAnswer() {
     	primaryStage = new Stage();
     	try {
-    		app = new TicketCalculator();
+    		app = new CheckSIDApp();
             app.start(primaryStage);
             getNodeList();
             SelectCom();
@@ -98,7 +98,7 @@ public class GenerateXML extends Application {
     void getNodeList() throws Exception {
     	pointMax = 0;
     	cnt = 2;
-    	pane = new CheckBoxTreeItem[100];	//最大100個まで
+    	pane = new CheckBoxTreeItem[100];	//100個まで
         // Documentインスタンスの生成
         DocumentBuilder documentBuilder;
         documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -111,21 +111,21 @@ public class GenerateXML extends Application {
         //チェックボックス生成
         pane[0] = new CheckBoxTreeItem<String>("Scene");
         pane[1] = new CheckBoxTreeItem<String>(nodeType);
-        pane[1].setExpanded(true);		// 初期画面で子ノードを表示させる
-        pane[1].setSelected(true);		// デフォルトでチェックを入れる
+        pane[1].setExpanded(true);
+        pane[1].setSelected(true);
         PaneBox = new CheckBoxTreeItem<String>();
         PaneBox = pane[1];
         //コンポーネント取得
         getCom(root, PaneBox);
     }
 
-    //コンポーネント取得メソッド
+    //コンポーネント取得メソッド（チェックボックス作成用）
     void getCom(Parent p, CheckBoxTreeItem<String> pb) {
     	ObservableList<Node> children = p.getChildrenUnmodifiable();
         if (children != null) {
             for (int i=0; i<children.size(); i++) {
                 String com = children.get(i).getClass().getSimpleName();      // コンポーネント名
-              //テキスト追加処理
+                //テキスト追加処理
                 String comText = addText(children.get(i));
                 if(comText != null)
                 	com = com + " " + comText;
@@ -158,7 +158,7 @@ public class GenerateXML extends Application {
     		return tf.getText();
         }
         else if(node instanceof ComboBox) {
-            ComboBox cb = (ComboBox) node;
+        	ComboBox cb = (ComboBox) node;
             return cb.getItems().toString();
         }
         else {
@@ -227,7 +227,7 @@ public class GenerateXML extends Application {
         	Box.setAttribute("Score", "1");
         	pointMax++;
         }
-        //アライメント書き込み
+        //Alignment書き込み
         PaneHantei((Node) root, Box);
         //コンポーネント
         getPointCom(Box, root);
@@ -235,7 +235,6 @@ public class GenerateXML extends Application {
         scene.setAttribute("ScoreMax", String.valueOf(pointMax));
     }
     
-    //コンポーネント読み込みメソッド
     void getPointCom(Element cp, Parent p) {
     	ObservableList<Node> children = p.getChildrenUnmodifiable();
         if (children != null) {
@@ -297,10 +296,9 @@ public class GenerateXML extends Application {
             	button.setOnAction(e -> {
             		try {
             			if (el.getAttribute("Event").equals("true")) {
-            				setInOut2("Input");
+            				setTestcase("Input");
             				EventButton.fire();
-            				setPoint();
-            				setInOut2("Output");
+            				setTestcase("Output");
             			}
     				} catch (Exception e1) {
     					e1.printStackTrace();
@@ -373,9 +371,6 @@ public class GenerateXML extends Application {
     			pane[i].setSelected(false);
     	}
     	Label lb = new Label("出力を選択してください");
-//    	CheckBoxTreeItem<String> nextScene = new CheckBoxTreeItem<>("新しい画面");
-//    	CheckBoxTreeItem<String> AlertScene = new CheckBoxTreeItem<>("アラート");
-//    	PaneBox.getChildren().addAll(nextScene, AlertScene);
     	CheckBoxTreeItem<String>[] Eventpane = pane;
     	PaneBox = Eventpane[1];
     	TreeView<String> tree = new TreeView<String>(PaneBox);
@@ -464,8 +459,8 @@ public class GenerateXML extends Application {
         stage1.show();
     }
     
-  //採点項目書き込みメソッド
-    void setInOut2(String s) throws Exception {
+  //テストケースの入出力値取得メソッド
+    void setTestcase(String s) throws Exception {
     	pointMax = 0;
     	cnt = 2;
     	//模範解答XML読み込み
@@ -480,50 +475,23 @@ public class GenerateXML extends Application {
         Parent root = scene1.getRoot();
         Element Box = (Element) scene.getChildNodes().item(1);
         //コンポーネント
-        getInOutcom2(Box, root);
+        getTestcasecom(Box, root);
     }
     
     //コンポーネント読み込みメソッド
-    void getInOutcom2(Element cp, Parent p) {
-    	ObservableList<Node> children = p.getChildrenUnmodifiable();
-        if (children != null) {
-            for (int i=0; i<children.size(); i++) {
-                String com = children.get(i).getClass().getSimpleName();      // コンポーネント名
-                Element Comp = document.createElement(com);
-                Comp.setAttribute("ID", String.valueOf(cnt));
-                if(pane[cnt].isSelected()) {
-                	Comp.setAttribute("Score", "1");
-                	pointMax++;
-                }
-                //テキスト追加処理
-                String comText = addText(children.get(i));
-                if(comText != null) {
-                	Comp.appendChild(document.createTextNode(comText));
-                }
-                addEvent(children.get(i), Comp);
-                cp.appendChild(Comp);
-                cnt++;
-                Node node = children.get(i);
-                if (node instanceof Pane) {     //レイアウトペイン判定
-                    PaneHantei((Node)node, Comp);
-                    getPointCom(Comp, (Parent) node);
-                }
-            }
+    void getTestcasecom(Element cp, Parent p) {
+    	NodeList TesterNodes = cp.getChildNodes();
+        for (int i=0; i<TesterNodes.getLength(); i++) {
+        	org.w3c.dom.Node TesterNode = TesterNodes.item(i);
+        	if(TesterNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+	        	Element TesterElement = (Element) TesterNode;
+	        	
+	        	if (TesterElement.getAttribute("Input").equals("true")) {
+	        		
+	        	}
+	        	cnt++;
+        	}
         }
-    }
-    
-    //入力値読み込みメソッド
-    void getInput() throws Exception {
-    	pointMax = 0;
-    	cnt = 2;
-    	Element TesterScene = document.getDocumentElement();
-    	Element TesterRoot = (Element) TesterScene.getChildNodes().item(0);
-    	
-    }
-    
-    //出力値読み込みメソッド
-    void getOutput() {
-    	
     }
 
     //XML書き込みメソッド
